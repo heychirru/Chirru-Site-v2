@@ -19,6 +19,9 @@ import java.util.Map;
 public class AdminPortfolioController {
     private final AdminPortfolioService service;
 
+    @GetMapping("/dashboard")
+    public AdminDashboardResponse dashboard() { return service.dashboard(); }
+
     @GetMapping("/profile")
     public Profile profile() { return service.getProfile(); }
 
