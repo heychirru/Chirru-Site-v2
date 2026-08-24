@@ -32,6 +32,9 @@ public class AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtService jwtService;
 
+    @Value("${app.jwt.access-token-expiration}")
+    private long accessTokenExpiration;
+
     @Value("${app.jwt.refresh-token-expiration}")
     private long refreshTokenExpiration;
 
@@ -47,14 +50,12 @@ public class AuthService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials"));
 
         String refreshToken = issueRefreshToken(user);
-        String accessToken = jwtService.generateAccessToken(authentication.getPrincipal() instanceof org.springframework.security.core.userdetails.User details
-                ? details
-                : new org.springframework.security.core.userdetails.User(
-                        user.getEmail(), user.getPasswordHash(),
-                        java.util.List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + user.getRole().name()))));
+        String accessToken = jwtService.generateAccessToken(
+                (org.springframework.security.core.userdetails.User) authentication.getPrincipal()
+        );
 
         return new AuthResult(
-                new AuthResponse(accessToken, "Bearer", 900L, user.getEmail(), user.getRole().name()),
+                authResponse(user, accessToken),
                 refreshToken
         );
     }
@@ -78,15 +79,15 @@ public class AuthService {
         stored.setRevoked(true);
         refreshTokenRepository.save(stored);
 
-        String accessToken = jwtService.generateAccessToken(
-                org.springframework.security.core.userdetails.User.withUsername(user.getEmail())
-                        .password(user.getPasswordHash())
-                        .roles(user.getRole().name())
-                        .build());
+        var principal = org.springframework.security.core.userdetails.User.withUsername(user.getEmail())
+                .password(user.getPasswordHash())
+                .roles(user.getRole().name())
+                .build();
+        String accessToken = jwtService.generateAccessToken(principal);
         String newRefreshToken = issueRefreshToken(user);
 
         return new AuthResult(
-                new AuthResponse(accessToken, "Bearer", 900L, user.getEmail(), user.getRole().name()),
+                authResponse(user, accessToken),
                 newRefreshToken
         );
     }
@@ -100,6 +101,16 @@ public class AuthService {
             token.setRevoked(true);
             refreshTokenRepository.save(token);
         });
+    }
+
+    private AuthResponse authResponse(User user, String accessToken) {
+        return new AuthResponse(
+                accessToken,
+                "Bearer",
+                accessTokenExpiration / 1000,
+                user.getEmail(),
+                user.getRole().name()
+        );
     }
 
     private String issueRefreshToken(User user) {
