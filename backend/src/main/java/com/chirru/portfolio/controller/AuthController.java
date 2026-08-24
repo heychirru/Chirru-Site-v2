@@ -23,12 +23,10 @@ import java.time.Duration;
 @RequiredArgsConstructor
 public class AuthController {
     private static final String REFRESH_COOKIE = "portfolio_refresh_token";
-
     private final AuthService authService;
 
     @Value("${app.jwt.refresh-token-expiration}")
     private long refreshTokenExpiration;
-
     @Value("${app.cookie.secure:false}")
     private boolean secureCookie;
 
@@ -57,7 +55,7 @@ public class AuthController {
                 .httpOnly(true)
                 .secure(secureCookie)
                 .sameSite("Strict")
-                .path("/api/v1/auth")
+                .path("/api/v2/auth")
                 .maxAge(Duration.ZERO)
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cleared.toString());
@@ -69,7 +67,7 @@ public class AuthController {
                 .httpOnly(true)
                 .secure(secureCookie)
                 .sameSite("Strict")
-                .path("/api/v1/auth")
+                .path("/api/v2/auth")
                 .maxAge(Duration.ofMillis(refreshTokenExpiration))
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
