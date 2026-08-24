@@ -25,6 +25,18 @@ public class AdminPortfolioService {
     private final MessageRepository messageRepository;
 
     @Transactional(readOnly = true)
+    public AdminDashboardResponse dashboard() {
+        return new AdminDashboardResponse(
+                projectRepository.count(),
+                skillRepository.count(),
+                experienceRepository.count(),
+                educationRepository.count(),
+                certificationRepository.count(),
+                messageRepository.countByReadFalse()
+        );
+    }
+
+    @Transactional(readOnly = true)
     public Profile getProfile() {
         return profileRepository.findAll().stream().findFirst()
                 .orElseThrow(() -> notFound("Profile not configured"));
