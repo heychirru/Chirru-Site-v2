@@ -21,6 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    @SuppressWarnings("null")
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http

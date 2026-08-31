@@ -5,14 +5,14 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_DB: chirru_portfolio
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: chirru
+      POSTGRES_PASSWORD: chirru26
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d chirru_portfolio"]
+      test: ["CMD-SHELL", "pg_isready -U chirru -d chirru_portfolio"]
       interval: 5s
       timeout: 5s
       retries: 10

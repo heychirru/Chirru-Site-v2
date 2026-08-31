@@ -61,6 +61,7 @@ public class AdminPortfolioService {
     public List<Project> projects() { return projectRepository.findAllByOrderByDisplayOrderAsc(); }
 
     public Project createProject(ProjectRequest request) {
+        validateSlugForCreate(request.slug());
         Project project = new Project();
         apply(project, request);
         return projectRepository.save(project);
@@ -68,6 +69,7 @@ public class AdminPortfolioService {
 
     public Project updateProject(Long id, ProjectRequest request) {
         Project project = requireProject(id);
+        validateSlugForUpdate(request.slug(), id);
         apply(project, request);
         return projectRepository.save(project);
     }
@@ -76,7 +78,7 @@ public class AdminPortfolioService {
 
     private void apply(Project project, ProjectRequest request) {
         project.setTitle(request.title());
-        project.setSlug(request.slug());
+        project.setSlug(request.slug().trim().toLowerCase());
         project.setDescription(request.description());
         project.setImageUrl(request.imageUrl());
         project.setGithubUrl(request.githubUrl());
@@ -84,6 +86,24 @@ public class AdminPortfolioService {
         project.setFeatured(request.featured());
         project.setDisplayOrder(request.displayOrder());
         project.setSkills(new HashSet<>(skillRepository.findAllById(request.skillIds())));
+    }
+
+    private void validateSlugForCreate(String slug) {
+        String normalized = normalizeSlug(slug);
+        if (projectRepository.existsBySlug(normalized)) {
+            throw conflict("A project with slug '" + normalized + "' already exists");
+        }
+    }
+
+    private void validateSlugForUpdate(String slug, Long id) {
+        String normalized = normalizeSlug(slug);
+        if (projectRepository.existsBySlugAndIdNot(normalized, id)) {
+            throw conflict("A project with slug '" + normalized + "' already exists");
+        }
+    }
+
+    private String normalizeSlug(String slug) {
+        return slug.trim().toLowerCase();
     }
 
     @Transactional(readOnly = true)
@@ -210,4 +230,5 @@ public class AdminPortfolioService {
     private Certification requireCertification(Long id) { return certificationRepository.findById(id).orElseThrow(() -> notFound("Certification not found")); }
     private Message requireMessage(Long id) { return messageRepository.findById(id).orElseThrow(() -> notFound("Message not found")); }
     private ResponseStatusException notFound(String message) { return new ResponseStatusException(HttpStatus.NOT_FOUND, message); }
+    private ResponseStatusException conflict(String message) { return new ResponseStatusException(HttpStatus.CONFLICT, message); }
 }

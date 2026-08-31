@@ -43,7 +43,7 @@ public class Project {
     @Column(name = "display_order", nullable = false)
     private int displayOrder;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "project_skills",
             joinColumns = @JoinColumn(name = "project_id"),
             inverseJoinColumns = @JoinColumn(name = "skill_id"))

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.Duration;
+
 
 @RestController
 @RequestMapping("/auth")
@@ -56,7 +56,7 @@ public class AuthController {
                 .secure(secureCookie)
                 .sameSite("Strict")
                 .path("/api/v2/auth")
-                .maxAge(Duration.ZERO)
+                .maxAge(0)
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cleared.toString());
         return ResponseEntity.noContent().build();
@@ -68,7 +68,7 @@ public class AuthController {
                 .secure(secureCookie)
                 .sameSite("Strict")
                 .path("/api/v2/auth")
-                .maxAge(Duration.ofMillis(refreshTokenExpiration))
+                .maxAge(refreshTokenExpiration / 1000)
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }

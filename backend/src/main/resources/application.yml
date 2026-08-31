@@ -2,10 +2,14 @@ spring:
   application:
     name: portfolio-backend
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/chirru_portfolio}
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:postgres}
+    url: "jdbc:postgresql://ep-odd-sky-azljt4ws-pooler.c-3.ap-southeast-1.aws.neon.tech/chirru_portfolio?user=chirru_portfolio_owner&password=npg_V5fzBdW0Gmhn&sslmode=require&channelBinding=require"
+    username: "chirru_portfolio_owner"
+    password: "npg_V5fzBdW0Gmhn"
     driver-class-name: org.postgresql.Driver
+    hikari:
+      max-lifetime: 60000
+      keepalive-time: 30000
+      validation-timeout: 3000
   jpa:
     hibernate:
       ddl-auto: validate
@@ -29,7 +33,7 @@ management:
 
 app:
   cors:
-    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:5174}
+     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:5174}
   cookie:
     secure: ${COOKIE_SECURE:false}
   jwt:
@@ -37,5 +41,5 @@ app:
     access-token-expiration: ${JWT_ACCESS_EXPIRATION:900000}
     refresh-token-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
   bootstrap-admin:
-    email: ${ADMIN_EMAIL:}
-    password: ${ADMIN_PASSWORD:}
+    email: "chiranjit809@gmail.com"
+    password: "Chiranjit@809"
