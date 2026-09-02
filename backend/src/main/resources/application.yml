@@ -2,9 +2,9 @@ spring:
   application:
     name: portfolio-backend
   datasource:
-    url: "jdbc:postgresql://ep-odd-sky-azljt4ws-pooler.c-3.ap-southeast-1.aws.neon.tech/chirru_portfolio?user=chirru_portfolio_owner&password=npg_V5fzBdW0Gmhn&sslmode=require&channelBinding=require"
-    username: "chirru_portfolio_owner"
-    password: "npg_V5fzBdW0Gmhn"
+    url: ""
+    username: ""
+    password: ""
     driver-class-name: org.postgresql.Driver
     hikari:
       max-lifetime: 60000
@@ -41,5 +41,5 @@ app:
     access-token-expiration: ${JWT_ACCESS_EXPIRATION:900000}
     refresh-token-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
   bootstrap-admin:
-    email: "chiranjit809@gmail.com"
-    password: "Chiranjit@809"
+    email: ""
+    password: ""
