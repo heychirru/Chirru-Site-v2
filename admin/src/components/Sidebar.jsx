@@ -49,10 +49,7 @@ export default function Sidebar({ onLogout, isOpen, onClose }) {
     staleTime: 30000,
   })
 
-<<<<<<< HEAD
-=======
   const name = profileQuery.data?.name || 'Chiranjit'
->>>>>>> e0b59c8 (update admin app)
   const unreadCount = dashQuery.data?.unreadMessages || 0
 
   return (
