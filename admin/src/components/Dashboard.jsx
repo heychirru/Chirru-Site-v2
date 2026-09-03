@@ -14,93 +14,39 @@ import { Link } from 'react-router-dom'
 import { adminApi } from '../api'
 
 export default function Dashboard() {
-  const q = useQuery({
-    queryKey: ['dashboard'],
-    queryFn: adminApi.dashboard,
-  })
+  const dashQuery = useQuery({ queryKey: ['dashboard'], queryFn: adminApi.dashboard })
+  const profileQuery = useQuery({ queryKey: ['profile'], queryFn: adminApi.profile })
+  const projectsQuery = useQuery({ queryKey: ['projects'], queryFn: adminApi.projects })
+  const messagesQuery = useQuery({ queryKey: ['messages'], queryFn: adminApi.messages })
+  const skillsQuery = useQuery({ queryKey: ['skills'], queryFn: adminApi.skills })
+  const experienceQuery = useQuery({ queryKey: ['experience'], queryFn: adminApi.experience })
+  const educationQuery = useQuery({ queryKey: ['education'], queryFn: adminApi.education })
+  const certsQuery = useQuery({ queryKey: ['certifications'], queryFn: adminApi.certifications })
 
-  if (q.isLoading) {
-    return (
-      <div className="loading-state">
-        <div className="spinner" />
-        <span>Loading dashboard analytics…</span>
-      </div>
-    )
-  }
+  // Real-time ticking clock
+  const [time, setTime] = useState(new Date())
+  useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 1000)
+    return () => clearInterval(timer)
+  }, [])
 
-  const d = q.data || {}
+  const d = dashQuery.data || {}
+  const profile = profileQuery.data || {}
+  const projects = projectsQuery.data || []
+  const messages = messagesQuery.data || []
+  const skills = skillsQuery.data || []
+  const experience = experienceQuery.data || []
+  const education = educationQuery.data || []
+  const certs = certsQuery.data || []
 
-  const stats = [
-    {
-      label: 'Projects',
-      value: d.projects ?? 0,
-      icon: FolderKanban,
-      color: 'primary',
-      to: '/projects',
-    },
-    {
-      label: 'Skills',
-      value: d.skills ?? 0,
-      icon: Wrench,
-      color: 'purple',
-      to: '/skills',
-    },
-    {
-      label: 'Experience',
-      value: d.experience ?? 0,
-      icon: BriefcaseBusiness,
-      color: 'cyan',
-      to: '/experience',
-    },
-    {
-      label: 'Education',
-      value: d.education ?? 0,
-      icon: GraduationCap,
-      color: 'emerald',
-      to: '/education',
-    },
-    {
-      label: 'Certifications',
-      value: d.certifications ?? 0,
-      icon: BadgeCheck,
-      color: 'amber',
-      to: '/certifications',
-    },
-    {
-      label: 'Unread Inquiries',
-      value: d.unreadMessages ?? 0,
-      icon: Mail,
-      color: 'rose',
-      to: '/messages',
-    },
-  ]
-
-  const quickActions = [
-    {
-      to: '/projects',
-      title: 'Add New Project',
-      desc: 'Publish a new work showcase',
-      icon: FolderKanban,
-    },
-    {
-      to: '/profile',
-      title: 'Update Profile',
-      desc: 'Edit bio, avatar, and social links',
-      icon: UserRound,
-    },
-    {
-      to: '/messages',
-      title: 'Review Messages',
-      desc: 'Check inquiries from visitors',
-      icon: Mail,
-    },
-    {
-      to: '/skills',
-      title: 'Manage Tech Stack',
-      desc: 'Update proficiencies & tools',
-      icon: Wrench,
-    },
-  ]
+  const name = profile.name || 'Chirag'
+  const unreadCount = d.unreadMessages ?? messages.filter((m) => !m.read).length
+  const projectsCount = d.projects ?? projects.length
+  const skillsCount = d.skills ?? skills.length
+  const experienceCount = d.experience ?? experience.length
+  const educationCount = d.education ?? education.length
+  const certsCount = d.certifications ?? certs.length
+  const featuredCount = projects.filter((p) => p.featured).length
 
   // Time-aware greeting
   const hour = new Date().getHours()
