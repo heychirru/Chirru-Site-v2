@@ -7,6 +7,7 @@ import Dashboard from './components/Dashboard'
 import Education from './components/Education'
 import Experience from './components/Experience'
 import Login from './components/Login'
+import MediaManager from './components/MediaManager'
 import Messages from './components/Messages'
 import Profile from './components/Profile'
 import Projects from './components/Projects'
@@ -95,6 +96,7 @@ function ProtectedLayout() {
             <Route path="/experience" element={<Experience />} />
             <Route path="/education" element={<Education />} />
             <Route path="/certifications" element={<Certifications />} />
+            <Route path="/media" element={<MediaManager />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

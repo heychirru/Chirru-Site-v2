@@ -1,26 +1,33 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
+  Check,
   ExternalLink,
   FolderKanban,
   Github,
+  Pencil,
   Plus,
+  RotateCcw,
   Search,
   Star,
   Trash2,
+  X,
 } from 'lucide-react'
 import { useState } from 'react'
 import { adminApi } from '../api'
+import CloudinaryUpload from './CloudinaryUpload'
 
 export default function Projects() {
   const qc = useQueryClient()
   const q = useQuery({ queryKey: ['projects'], queryFn: adminApi.projects })
 
+  const [editingId, setEditingId] = useState(null)
   const [title, setTitle] = useState('')
   const [slug, setSlug] = useState('')
   const [description, setDescription] = useState('')
   const [featured, setFeatured] = useState(false)
   const [liveUrl, setLiveUrl] = useState('')
   const [githubUrl, setGithubUrl] = useState('')
+  const [imageUrl, setImageUrl] = useState('')
   const [search, setSearch] = useState('')
 
   const [error, setError] = useState('')
@@ -36,42 +43,71 @@ export default function Projects() {
     )
   }
 
-  // Auto-generate slug from title if slug not modified manually
   const handleTitleChange = (val) => {
     setTitle(val)
-    if (!slug || slug === title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')) {
+    if (!editingId && (!slug || slug === title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''))) {
       setSlug(val.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''))
     }
   }
 
-  async function handleAddProject(e) {
+  const handleStartEdit = (project) => {
+    setEditingId(project.id)
+    setTitle(project.title || '')
+    setSlug(project.slug || '')
+    setDescription(project.description || '')
+    setFeatured(Boolean(project.featured))
+    setLiveUrl(project.liveUrl || '')
+    setGithubUrl(project.githubUrl || '')
+    setImageUrl(project.imageUrl || '')
+    setError('')
+    setSuccess('')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleCancelEdit = () => {
+    setEditingId(null)
+    setTitle('')
+    setSlug('')
+    setDescription('')
+    setFeatured(false)
+    setLiveUrl('')
+    setGithubUrl('')
+    setImageUrl('')
+    setError('')
+    setSuccess('')
+  }
+
+  async function handleSubmit(e) {
     e.preventDefault()
     setBusy(true)
     setError('')
     setSuccess('')
 
+    const payload = {
+      title,
+      slug,
+      description,
+      featured,
+      displayOrder: 0,
+      liveUrl: liveUrl || undefined,
+      githubUrl: githubUrl || undefined,
+      imageUrl: imageUrl || undefined,
+      skillIds: [],
+    }
+
     try {
-      await adminApi.createProject({
-        title,
-        slug,
-        description,
-        featured,
-        displayOrder: 0,
-        liveUrl: liveUrl || undefined,
-        githubUrl: githubUrl || undefined,
-        skillIds: [],
-      })
-      setTitle('')
-      setSlug('')
-      setDescription('')
-      setFeatured(false)
-      setLiveUrl('')
-      setGithubUrl('')
-      setSuccess('Project added successfully!')
+      if (editingId) {
+        await adminApi.updateProject(editingId, payload)
+        setSuccess('Project updated successfully!')
+      } else {
+        await adminApi.createProject(payload)
+        setSuccess('Project added successfully!')
+      }
+      handleCancelEdit()
       await qc.invalidateQueries({ queryKey: ['projects'] })
       await qc.invalidateQueries({ queryKey: ['dashboard'] })
     } catch (err) {
-      setError(err.message || 'Failed to create project.')
+      setError(err.message || 'Failed to save project.')
     } finally {
       setBusy(false)
     }
@@ -81,6 +117,9 @@ export default function Projects() {
     if (!window.confirm(`Are you sure you want to delete "${projectTitle}"?`)) return
     try {
       await adminApi.deleteProject(id)
+      if (editingId === id) {
+        handleCancelEdit()
+      }
       await qc.invalidateQueries({ queryKey: ['projects'] })
       await qc.invalidateQueries({ queryKey: ['dashboard'] })
     } catch (err) {
@@ -103,21 +142,40 @@ export default function Projects() {
             <FolderKanban size={26} color="var(--primary)" />
             <span>Projects Showcase</span>
           </h1>
-          <p>Create, manage, and curate featured projects for your portfolio.</p>
+          <p>Create, manage, and curate featured projects with Cloudinary media for your portfolio.</p>
         </div>
       </div>
 
       <div className="grid-split">
-        {/* Left Column: Create Project Form */}
+        {/* Left Column: Form */}
         <div className="panel">
           <div className="panel-header">
             <h3 className="panel-title">
-              <Plus size={18} color="var(--primary)" />
-              <span>Create New Project</span>
+              {editingId ? (
+                <>
+                  <Pencil size={18} color="var(--primary)" />
+                  <span>Edit Project</span>
+                </>
+              ) : (
+                <>
+                  <Plus size={18} color="var(--primary)" />
+                  <span>Create New Project</span>
+                </>
+              )}
             </h3>
+            {editingId && (
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={handleCancelEdit}
+              >
+                <X size={14} />
+                <span>Cancel</span>
+              </button>
+            )}
           </div>
 
-          <form className="form" onSubmit={handleAddProject}>
+          <form className="form" onSubmit={handleSubmit}>
             {error && <div className="alert alert-error">{error}</div>}
             {success && <div className="alert alert-success">{success}</div>}
 
@@ -140,6 +198,18 @@ export default function Projects() {
                 onChange={(e) => setSlug(e.target.value)}
                 placeholder="ai-workflow-engine"
                 required
+              />
+            </div>
+
+            {/* Cloudinary Image Upload for Project Cover / Screenshot */}
+            <div className="form-group">
+              <CloudinaryUpload
+                label="Project Cover / Screenshot"
+                folder="projects"
+                resourceType="image"
+                value={imageUrl}
+                onChange={(url) => setImageUrl(url)}
+                helperText="Upload JPEG, PNG, or WebP preview (Max 5 MB)"
               />
             </div>
 
@@ -190,19 +260,32 @@ export default function Projects() {
               </label>
             </div>
 
-            <button type="submit" className="btn btn-primary" disabled={busy}>
-              {busy ? (
-                <>
-                  <div className="spinner" style={{ width: 16, height: 16 }} />
-                  <span>Saving Project…</span>
-                </>
-              ) : (
-                <>
-                  <Plus size={16} />
-                  <span>Add Project</span>
-                </>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button type="submit" className="btn btn-primary" disabled={busy} style={{ flex: 1 }}>
+                {busy ? (
+                  <>
+                    <div className="spinner" style={{ width: 16, height: 16 }} />
+                    <span>{editingId ? 'Updating…' : 'Adding…'}</span>
+                  </>
+                ) : (
+                  <>
+                    {editingId ? <Check size={16} /> : <Plus size={16} />}
+                    <span>{editingId ? 'Update Project' : 'Add Project'}</span>
+                  </>
+                )}
+              </button>
+
+              {editingId && (
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={handleCancelEdit}
+                >
+                  <RotateCcw size={15} />
+                  <span>Reset</span>
+                </button>
               )}
-            </button>
+            </div>
           </form>
         </div>
 
@@ -236,7 +319,34 @@ export default function Projects() {
           ) : (
             <div className="data-list">
               {filteredProjects.map((project) => (
-                <div className="data-row" key={project.id}>
+                <div
+                  className="data-row"
+                  key={project.id}
+                  style={
+                    editingId === project.id
+                      ? { borderColor: '#0b5c46', background: '#f0fdf4' }
+                      : undefined
+                  }
+                >
+                  {project.imageUrl && (
+                    <div
+                      style={{
+                        width: 42,
+                        height: 42,
+                        borderRadius: 6,
+                        overflow: 'hidden',
+                        flexShrink: 0,
+                        border: '1px solid var(--border-card)',
+                      }}
+                    >
+                      <img
+                        src={project.imageUrl}
+                        alt=""
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    </div>
+                  )}
+
                   <div className="data-row-main">
                     <div className="data-row-title">
                       <span>{project.title}</span>
@@ -244,6 +354,20 @@ export default function Projects() {
                         <span className="badge badge-amber">
                           <Star size={11} fill="currentColor" />
                           Featured
+                        </span>
+                      )}
+                      {editingId === project.id && (
+                        <span
+                          style={{
+                            fontSize: '0.68rem',
+                            fontWeight: 700,
+                            color: '#0b5c46',
+                            background: '#e6f7f0',
+                            padding: '1px 6px',
+                            borderRadius: 4,
+                          }}
+                        >
+                          Editing
                         </span>
                       )}
                     </div>
@@ -272,13 +396,21 @@ export default function Projects() {
                     </div>
                   </div>
 
-                  <div className="data-row-actions">
+                  <div className="data-row-actions" style={{ display: 'flex', gap: 6 }}>
+                    <button
+                      className="btn btn-secondary btn-sm"
+                      onClick={() => handleStartEdit(project)}
+                      title="Edit Project"
+                    >
+                      <Pencil size={13} />
+                      <span>Edit</span>
+                    </button>
                     <button
                       className="btn btn-danger btn-sm btn-icon"
                       onClick={() => handleDeleteProject(project.id, project.title)}
                       title="Delete Project"
                     >
-                      <Trash2 size={15} />
+                      <Trash2 size={14} />
                     </button>
                   </div>
                 </div>

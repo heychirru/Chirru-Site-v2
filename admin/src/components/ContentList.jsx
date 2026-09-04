@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Plus, Search, Trash2 } from 'lucide-react'
 import { useState } from 'react'
+import CloudinaryUpload from './CloudinaryUpload'
 
 export default function ContentList({
   title,
@@ -103,7 +104,25 @@ export default function ContentList({
                   <label className="form-label">
                     {field.label} {field.required ? '*' : ''}
                   </label>
-                  {field.type === 'textarea' ? (
+                  {field.type === 'image-upload' ? (
+                    <CloudinaryUpload
+                      label={field.uploadLabel || 'Upload Image'}
+                      folder={field.folder || 'documents'}
+                      resourceType="image"
+                      value={formData[field.name] || ''}
+                      onChange={(url) => handleFieldChange(field.name, url)}
+                      helpText={field.helpText || 'JPEG, PNG, WebP up to 5MB'}
+                    />
+                  ) : field.type === 'doc-upload' ? (
+                    <CloudinaryUpload
+                      label={field.uploadLabel || 'Upload Document'}
+                      folder={field.folder || 'documents'}
+                      resourceType="raw"
+                      value={formData[field.name] || ''}
+                      onChange={(url) => handleFieldChange(field.name, url)}
+                      helpText={field.helpText || 'PDF document up to 10MB'}
+                    />
+                  ) : field.type === 'textarea' ? (
                     <textarea
                       className="form-textarea"
                       placeholder={field.placeholder || ''}

@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { adminApi } from '../api'
+import CloudinaryUpload from './CloudinaryUpload'
 
 export default function Profile() {
   const qc = useQueryClient()
@@ -193,12 +194,12 @@ export default function Profile() {
             </div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div className="panel">
               <div className="panel-header">
                 <h3 className="panel-title">
                   <Globe size={18} color="var(--accent-purple)" />
-                  <span>Online Links & Media</span>
+                  <span>Online Links & Cloudinary Media</span>
                 </h3>
               </div>
 
@@ -225,47 +226,29 @@ export default function Profile() {
                   />
                 </div>
 
+                {/* Cloudinary Document Uploader for Resume / CV */}
                 <div className="form-group">
-                  <label className="form-label">Resume / CV Link</label>
-                  <input
-                    className="form-input"
-                    type="url"
+                  <CloudinaryUpload
+                    label="Resume / CV Document"
+                    folder="resume"
+                    resourceType="raw"
                     value={form.resumeUrl || ''}
-                    onChange={(e) => handleChange('resumeUrl', e.target.value)}
-                    placeholder="https://.../resume.pdf"
+                    onChange={(url) => handleChange('resumeUrl', url)}
+                    helperText="Upload PDF resume (Max 10 MB)"
                   />
                 </div>
 
+                {/* Cloudinary Image Uploader for Avatar */}
                 <div className="form-group">
-                  <label className="form-label">Avatar Image URL</label>
-                  <input
-                    className="form-input"
-                    type="url"
+                  <CloudinaryUpload
+                    label="Avatar Photo"
+                    folder="profile"
+                    resourceType="image"
                     value={form.imageUrl || ''}
-                    onChange={(e) => handleChange('imageUrl', e.target.value)}
-                    placeholder="https://.../avatar.jpg"
+                    onChange={(url) => handleChange('imageUrl', url)}
+                    helperText="Upload JPEG, PNG, or WebP profile image (Max 5 MB)"
                   />
                 </div>
-
-                {form.imageUrl && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 4 }}>
-                    <img
-                      src={form.imageUrl}
-                      alt="Avatar preview"
-                      style={{
-                        width: 50,
-                        height: 50,
-                        borderRadius: '50%',
-                        objectFit: 'cover',
-                        border: '2px solid var(--border-highlight)',
-                      }}
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none'
-                      }}
-                    />
-                    <small style={{ color: 'var(--text-muted)' }}>Avatar Preview</small>
-                  </div>
-                )}
               </div>
             </div>
 
@@ -273,7 +256,7 @@ export default function Profile() {
               type="submit"
               className="btn btn-primary"
               disabled={saving}
-              style={{ width: '100%', padding: '14px' }}
+              style={{ width: '100%', padding: '12px' }}
             >
               {saving ? (
                 <>

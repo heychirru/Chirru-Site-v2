@@ -99,4 +99,32 @@ export const adminApi = {
   messages: () => request('/admin/messages'),
   markMessage: (id, read) => request(`/admin/messages/${id}/read`, { method: 'PATCH', body: JSON.stringify({ read }) }),
   deleteMessage: (id) => request(`/admin/messages/${id}`, { method: 'DELETE' }),
+
+  uploadMedia: async (folder, file) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    const token = authStore.get()
+    const response = await fetch(`${API_URL}/admin/media/${folder}`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: formData,
+    })
+    if (!response.ok) {
+      let message = 'Upload failed'
+      try {
+        const body = await response.json()
+        message = body.message || message
+      } catch {}
+      throw new Error(message)
+    }
+    return response.json()
+  },
+
+  deleteMedia: (publicId, resourceType = 'image') =>
+    request(`/admin/media?publicId=${encodeURIComponent(publicId)}&resourceType=${encodeURIComponent(resourceType)}`, {
+      method: 'DELETE',
+    }),
 }

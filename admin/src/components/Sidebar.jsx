@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import {
   BadgeCheck,
   BriefcaseBusiness,
+  CloudUpload,
   ExternalLink,
   FolderKanban,
   GraduationCap,
@@ -24,6 +25,7 @@ const navItems = [
   { to: '/experience', label: 'Experience', icon: BriefcaseBusiness },
   { to: '/education', label: 'Education', icon: GraduationCap },
   { to: '/certifications', label: 'Certifications', icon: BadgeCheck },
+  { to: '/media', label: 'Media & Documents', icon: CloudUpload },
   { to: '/messages', label: 'Inquiries & Messages', icon: Mail, isMessage: true },
 ]
 
