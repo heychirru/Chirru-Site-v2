@@ -4,6 +4,7 @@ backend/target/
 # Node
 node_modules/
 frontend/dist/
+Frontend/dist/
 admin/dist/
 
 # Environment

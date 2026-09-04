@@ -1,5 +1,5 @@
 import { Menu } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 import { auth, authStore } from './api'
 import Certifications from './components/Certifications'
@@ -18,6 +18,16 @@ function ProtectedLayout() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
 
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 1024) {
+        setIsMobileOpen(false)
+      }
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
   async function handleLogout() {
     try {
       await auth.logout()
@@ -30,10 +40,14 @@ function ProtectedLayout() {
 
   const handleToggle = () => {
     if (window.innerWidth <= 1024) {
-      setIsMobileOpen(!isMobileOpen)
+      setIsMobileOpen((prev) => !prev)
     } else {
-      setIsSidebarCollapsed(!isSidebarCollapsed)
+      setIsSidebarCollapsed((prev) => !prev)
     }
+  }
+
+  const handleCloseMobile = () => {
+    setIsMobileOpen(false)
   }
 
   return (
@@ -41,6 +55,7 @@ function ProtectedLayout() {
       <Sidebar
         isOpen={isMobileOpen}
         onToggle={handleToggle}
+        onClose={handleCloseMobile}
         onLogout={handleLogout}
       />
 
@@ -90,14 +105,29 @@ function ProtectedLayout() {
 }
 
 export default function App() {
+  const [token, setToken] = useState(() => authStore.get())
+
+  useEffect(() => {
+    const handleAuthChange = () => {
+      setToken(authStore.get())
+    }
+    window.addEventListener('auth-change', handleAuthChange)
+    window.addEventListener('storage', handleAuthChange)
+    return () => {
+      window.removeEventListener('auth-change', handleAuthChange)
+      window.removeEventListener('storage', handleAuthChange)
+    }
+  }, [])
+
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
+      <Route
+        path="/login"
+        element={token ? <Navigate to="/" replace /> : <Login />}
+      />
       <Route
         path="/*"
-        element={
-          authStore.get() ? <ProtectedLayout /> : <Navigate to="/login" replace />
-        }
+        element={token ? <ProtectedLayout /> : <Navigate to="/login" replace />}
       />
     </Routes>
   )

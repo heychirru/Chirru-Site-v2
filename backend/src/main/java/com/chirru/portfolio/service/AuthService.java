@@ -7,10 +7,13 @@ import com.chirru.portfolio.entity.User;
 import com.chirru.portfolio.repository.RefreshTokenRepository;
 import com.chirru.portfolio.repository.UserRepository;
 import com.chirru.portfolio.security.JwtService;
+import com.chirru.portfolio.security.LoginRateLimiter;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -31,6 +34,8 @@ public class AuthService {
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtService jwtService;
+    private final LoginRateLimiter loginRateLimiter;
+    private final AuditService auditService;
 
     @Value("${app.jwt.access-token-expiration}")
     private long accessTokenExpiration;
@@ -41,23 +46,32 @@ public class AuthService {
     private final SecureRandom secureRandom = new SecureRandom();
 
     @Transactional
-    public AuthResult login(LoginRequest request) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.email().trim(), request.password())
-        );
+    public AuthResult login(LoginRequest request, HttpServletRequest httpRequest) {
+        String email = request.email().trim().toLowerCase();
+        String key = email + "|" + clientIp(httpRequest);
+        loginRateLimiter.checkAllowed(key);
 
-        User user = userRepository.findByEmailIgnoreCase(authentication.getName())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials"));
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(email, request.password())
+            );
 
-        String refreshToken = issueRefreshToken(user);
-        String accessToken = jwtService.generateAccessToken(
-                (org.springframework.security.core.userdetails.User) authentication.getPrincipal()
-        );
+            User user = userRepository.findByEmailIgnoreCase(authentication.getName())
+                    .orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
 
-        return new AuthResult(
-                authResponse(user, accessToken),
-                refreshToken
-        );
+            loginRateLimiter.recordSuccess(key);
+            String refreshToken = issueRefreshToken(user);
+            String accessToken = jwtService.generateAccessToken(
+                    (org.springframework.security.core.userdetails.User) authentication.getPrincipal()
+            );
+
+            safeAudit("LOGIN_SUCCESS", "AUTH", httpRequest, authentication, true, null);
+            return new AuthResult(authResponse(user, accessToken), refreshToken);
+        } catch (BadCredentialsException ex) {
+            loginRateLimiter.recordFailure(key);
+            safeAudit("LOGIN_FAILURE", "AUTH", httpRequest, null, false, "Invalid credentials");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
+        }
     }
 
     @Transactional
@@ -86,17 +100,12 @@ public class AuthService {
         String accessToken = jwtService.generateAccessToken(principal);
         String newRefreshToken = issueRefreshToken(user);
 
-        return new AuthResult(
-                authResponse(user, accessToken),
-                newRefreshToken
-        );
+        return new AuthResult(authResponse(user, accessToken), newRefreshToken);
     }
 
     @Transactional
     public void logout(String rawRefreshToken) {
-        if (rawRefreshToken == null || rawRefreshToken.isBlank()) {
-            return;
-        }
+        if (rawRefreshToken == null || rawRefreshToken.isBlank()) return;
         refreshTokenRepository.findByTokenHashAndRevokedFalse(hash(rawRefreshToken)).ifPresent(token -> {
             token.setRevoked(true);
             refreshTokenRepository.save(token);
@@ -104,13 +113,8 @@ public class AuthService {
     }
 
     private AuthResponse authResponse(User user, String accessToken) {
-        return new AuthResponse(
-                accessToken,
-                "Bearer",
-                accessTokenExpiration / 1000,
-                user.getEmail(),
-                user.getRole().name()
-        );
+        return new AuthResponse(accessToken, "Bearer", accessTokenExpiration / 1000,
+                user.getEmail(), user.getRole().name());
     }
 
     private String issueRefreshToken(User user) {
@@ -129,15 +133,28 @@ public class AuthService {
 
     private String hash(String value) {
         try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hashed = digest.digest(value.getBytes(StandardCharsets.UTF_8));
+            byte[] hashed = MessageDigest.getInstance("SHA-256")
+                    .digest(value.getBytes(StandardCharsets.UTF_8));
             StringBuilder hex = new StringBuilder(hashed.length * 2);
-            for (byte b : hashed) {
-                hex.append(String.format("%02x", b));
-            }
+            for (byte b : hashed) hex.append(String.format("%02x", b));
             return hex.toString();
         } catch (NoSuchAlgorithmException ex) {
             throw new IllegalStateException("SHA-256 is unavailable", ex);
+        }
+    }
+
+    private String clientIp(HttpServletRequest request) {
+        String forwarded = request.getHeader("X-Forwarded-For");
+        if (forwarded != null && !forwarded.isBlank()) return forwarded.split(",")[0].trim();
+        return request.getRemoteAddr();
+    }
+
+    private void safeAudit(String action, String resource, HttpServletRequest request,
+                           Authentication authentication, boolean success, String details) {
+        try {
+            auditService.record(action, resource, request, authentication, success, details);
+        } catch (RuntimeException ignored) {
+            // Authentication must not fail because audit storage is unavailable.
         }
     }
 

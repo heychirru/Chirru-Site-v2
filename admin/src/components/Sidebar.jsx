@@ -27,8 +27,9 @@ const navItems = [
   { to: '/messages', label: 'Inquiries & Messages', icon: Mail, isMessage: true },
 ]
 
-export default function Sidebar({ isOpen, onToggle, onLogout }) {
+export default function Sidebar({ isOpen, onToggle, onClose, onLogout }) {
   const location = useLocation()
+  const publicSiteUrl = import.meta.env.VITE_PUBLIC_SITE_URL || 'http://localhost:5174'
 
   const profileQuery = useQuery({
     queryKey: ['profile'],
@@ -44,10 +45,21 @@ export default function Sidebar({ isOpen, onToggle, onLogout }) {
   const name = profileQuery.data?.name || 'Chiranjit Das'
   const unreadCount = dashQuery.data?.unreadMessages || 0
 
+  const handleClose = () => {
+    if (onClose) {
+      onClose()
+    } else if (onToggle) {
+      onToggle()
+    }
+  }
+
   return (
     <>
-      {isOpen && <div className="sidebar-backdrop" onClick={onToggle} />}
-      <aside className={`sidebar ${isOpen ? 'mobile-open' : ''}`}>
+      {isOpen && <div className="sidebar-backdrop" onClick={handleClose} />}
+      <aside
+        className={`sidebar ${isOpen ? 'mobile-open' : ''}`}
+        aria-label="Sidebar Navigation"
+      >
         {/* Header matching exact layout */}
         <div className="sidebar-header">
           <div className="sidebar-user-block">
@@ -83,7 +95,7 @@ export default function Sidebar({ isOpen, onToggle, onLogout }) {
                 className={`sidebar-item ${isActive ? 'active' : ''}`}
                 onClick={() => {
                   if (window.innerWidth <= 1024) {
-                    onToggle()
+                    handleClose()
                   }
                 }}
               >
@@ -102,7 +114,7 @@ export default function Sidebar({ isOpen, onToggle, onLogout }) {
         {/* Footer Actions */}
         <div className="sidebar-footer">
           <a
-            href="http://localhost:5174"
+            href={publicSiteUrl}
             target="_blank"
             rel="noreferrer"
             className="sidebar-btn-footer"

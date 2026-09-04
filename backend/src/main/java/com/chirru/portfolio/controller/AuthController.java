@@ -3,6 +3,7 @@ package com.chirru.portfolio.controller;
 import com.chirru.portfolio.dto.auth.AuthResponse;
 import com.chirru.portfolio.dto.auth.LoginRequest;
 import com.chirru.portfolio.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
-
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -29,10 +28,14 @@ public class AuthController {
     private long refreshTokenExpiration;
     @Value("${app.cookie.secure:false}")
     private boolean secureCookie;
+    @Value("${app.cookie.same-site:Strict}")
+    private String sameSite;
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request, HttpServletResponse response) {
-        AuthService.AuthResult result = authService.login(request);
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request,
+                                              HttpServletRequest httpRequest,
+                                              HttpServletResponse response) {
+        AuthService.AuthResult result = authService.login(request, httpRequest);
         setRefreshCookie(response, result.refreshToken());
         return ResponseEntity.ok(result.response());
     }
@@ -51,11 +54,7 @@ public class AuthController {
             @CookieValue(name = REFRESH_COOKIE, required = false) String refreshToken,
             HttpServletResponse response) {
         authService.logout(refreshToken);
-        ResponseCookie cleared = ResponseCookie.from(REFRESH_COOKIE, "")
-                .httpOnly(true)
-                .secure(secureCookie)
-                .sameSite("Strict")
-                .path("/api/v2/auth")
+        ResponseCookie cleared = baseCookie(REFRESH_COOKIE, "")
                 .maxAge(0)
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cleared.toString());
@@ -63,13 +62,17 @@ public class AuthController {
     }
 
     private void setRefreshCookie(HttpServletResponse response, String token) {
-        ResponseCookie cookie = ResponseCookie.from(REFRESH_COOKIE, token)
-                .httpOnly(true)
-                .secure(secureCookie)
-                .sameSite("Strict")
-                .path("/api/v2/auth")
+        ResponseCookie cookie = baseCookie(REFRESH_COOKIE, token)
                 .maxAge(refreshTokenExpiration / 1000)
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+    }
+
+    private ResponseCookie.ResponseCookieBuilder baseCookie(String name, String value) {
+        return ResponseCookie.from(name, value)
+                .httpOnly(true)
+                .secure(secureCookie)
+                .sameSite(sameSite)
+                .path("/api/v2/auth");
     }
 }

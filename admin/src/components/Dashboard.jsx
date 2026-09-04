@@ -75,6 +75,10 @@ export default function Dashboard() {
     second: '2-digit',
   })
 
+  const dateIsoFormatted = `${time.getFullYear()}-${String(time.getMonth() + 1).padStart(2, '0')}-${String(time.getDate()).padStart(2, '0')}`
+
+  const hasRefId = messages.some((m) => m && m.id !== undefined && m.id !== null && m.id !== '')
+
   return (
     <div className="dashboard-container">
       {/* 1. Hero Banner matching Reference Screenshot */}
@@ -260,7 +264,7 @@ export default function Dashboard() {
       <div className="summary-strip">
         <div className="summary-strip-item">
           <span className="summary-strip-label">FEATURED WORKS</span>
-          <div className="summary-strip-val green">{featuredCount || projectsCount}</div>
+          <div className="summary-strip-val green">{featuredCount}</div>
         </div>
         <div className="summary-strip-item">
           <span className="summary-strip-label">PENDING INQUIRIES</span>
@@ -334,7 +338,7 @@ export default function Dashboard() {
               <table className="ledger-table">
                 <thead>
                   <tr>
-                    <th>REFERENCE</th>
+                    {hasRefId && <th>REFERENCE</th>}
                     <th>PARTICULARS</th>
                     <th>CHANNEL</th>
                     <th>DATE</th>
@@ -344,18 +348,22 @@ export default function Dashboard() {
                 <tbody>
                   {messages.length === 0 ? (
                     <tr>
-                      <td colSpan={5} style={{ textAlign: 'center', padding: '24px', color: '#94a3b8' }}>
+                      <td colSpan={hasRefId ? 5 : 4} style={{ textAlign: 'center', padding: '24px', color: '#94a3b8' }}>
                         No incoming inquiries yet.
                       </td>
                     </tr>
                   ) : (
                     messages.slice(0, 5).map((m, idx) => (
                       <tr key={m.id || idx}>
-                        <td>
-                          <span className="ref-code">
-                            #MSG-2026-{(1001 + idx).toString()}
-                          </span>
-                        </td>
+                        {hasRefId && (
+                          <td>
+                            {m.id ? (
+                              <span className="ref-code">{m.id}</span>
+                            ) : (
+                              <span style={{ color: '#94a3b8' }}>-</span>
+                            )}
+                          </td>
+                        )}
                         <td>
                           <div className="particulars-title">{m.subject || 'Portfolio Inquiry'}</div>
                           <div className="particulars-sub">
@@ -513,7 +521,7 @@ export default function Dashboard() {
               <div>Software Engine: <strong>Chirru Portfolio CMS Enterprise</strong></div>
               <div>Frontend: <strong>React 19 + Vite 7</strong></div>
               <div>Database & REST: <strong>REST API v2 · Port 8080</strong></div>
-              <div>Server Clock: <strong>2026-09-04 {formattedTime}</strong></div>
+              <div>Server Clock: <strong>{dateIsoFormatted} {formattedTime}</strong></div>
             </div>
           </div>
         </div>
