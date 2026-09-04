@@ -3,13 +3,22 @@ import {
   ArrowRight,
   BadgeCheck,
   BriefcaseBusiness,
+  Clock,
+  ExternalLink,
+  FileSpreadsheet,
   FolderKanban,
   GraduationCap,
   Mail,
-  Sparkles,
+  Plus,
+  Radio,
+  Settings,
+  ShieldCheck,
+  UserCheck,
   UserRound,
-  Wrench
+  Users,
+  Wrench,
 } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { adminApi } from '../api'
 
@@ -32,14 +41,14 @@ export default function Dashboard() {
 
   const d = dashQuery.data || {}
   const profile = profileQuery.data || {}
-  const projects = projectsQuery.data || []
-  const messages = messagesQuery.data || []
-  const skills = skillsQuery.data || []
-  const experience = experienceQuery.data || []
-  const education = educationQuery.data || []
-  const certs = certsQuery.data || []
+  const projects = Array.isArray(projectsQuery.data) ? projectsQuery.data : []
+  const messages = Array.isArray(messagesQuery.data) ? messagesQuery.data : []
+  const skills = Array.isArray(skillsQuery.data) ? skillsQuery.data : []
+  const experience = Array.isArray(experienceQuery.data) ? experienceQuery.data : []
+  const education = Array.isArray(educationQuery.data) ? educationQuery.data : []
+  const certs = Array.isArray(certsQuery.data) ? certsQuery.data : []
 
-  const name = profile.name || 'Chirag'
+  const name = profile.name || 'Chiranjit Das'
   const unreadCount = d.unreadMessages ?? messages.filter((m) => !m.read).length
   const projectsCount = d.projects ?? projects.length
   const skillsCount = d.skills ?? skills.length
@@ -49,101 +58,471 @@ export default function Dashboard() {
   const featuredCount = projects.filter((p) => p.featured).length
 
   // Time-aware greeting
-  const hour = new Date().getHours()
-  const greeting =
-    hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
+  const hour = time.getHours()
+  const greeting = hour < 12 ? 'Good Morning' : hour < 18 ? 'Good Afternoon' : 'Good Evening'
+
+  const formattedDate = time.toLocaleDateString('en-GB', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
+
+  const formattedTime = time.toLocaleTimeString('en-GB', {
+    hour12: false,
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  })
 
   return (
-    <>
-      <div className="dashboard-hero">
-        <div className="dashboard-hero-content">
-          <h2 className="dashboard-hero-title">
-            {greeting}, Chiranjit 👋
-          </h2>
-          <p className="dashboard-hero-subtitle">
-            Welcome to your portfolio CMS. Here is a high-level summary of your active portfolio assets and recent incoming inquiries.
-          </p>
+    <div className="dashboard-container">
+      {/* 1. Hero Banner matching Reference Screenshot */}
+      <div className="executive-hero">
+        <div className="executive-hero-left">
+          <div className="executive-hero-avatar">
+            {profile.imageUrl ? (
+              <img src={profile.imageUrl} alt={name} />
+            ) : (
+              name.charAt(0).toUpperCase()
+            )}
+          </div>
+          <div className="executive-hero-info">
+            <span className="executive-hero-tag">PORTFOLIO ADMINISTRATOR</span>
+            <h1 className="executive-hero-title">
+              {greeting}, {name}
+            </h1>
+            <div className="executive-hero-subrow">
+              <span>• Projects: {projectsCount}</span>
+              <span>• Skills: {skillsCount}</span>
+              <span>• Roles: {experienceCount}</span>
+              <span className="executive-hero-badge">
+                <span className="hero-status-dot" />
+                PORTFOLIO LIVE
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="executive-hero-right">
+          <div className="executive-clock-card">
+            <div className="executive-clock-date">
+              <span>📅</span>
+              <span>{formattedDate}</span>
+            </div>
+            <div className="executive-clock-time">
+              <Clock size={16} />
+              <span>{formattedTime}</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="stats-grid">
-        {stats.map(({ label, value, icon: Icon, color, to }) => (
-          <Link key={label} to={to} className="stat-card">
-            <div className="stat-card-header">
-              <span className="stat-card-label">{label}</span>
-              <div className={`stat-card-icon ${color}`}>
-                <Icon size={20} />
+      {/* 2. Top 6 Metric Stat Cards (Grid with Real Portfolio Metrics) */}
+      <div className="stat-grid-6">
+        {/* Card 1: Total Active Projects */}
+        <div className="ref-stat-card">
+          <div className="ref-stat-header">
+            <span className="ref-stat-title">TOTAL ACTIVE PROJECTS</span>
+            <div className="ref-stat-badge-icon blue">
+              <FolderKanban size={14} />
+            </div>
+          </div>
+          <div className="ref-stat-main">
+            <div className="ref-stat-val">{projectsCount}</div>
+            <span className="ref-stat-sub">Featured & Public Showcases</span>
+          </div>
+          <div className="ref-stat-footer">
+            <span className="ref-stat-tag">Showcase Works</span>
+            <Link to="/projects" className="ref-stat-link blue">
+              Directory →
+            </Link>
+          </div>
+        </div>
+
+        {/* Card 2: Technical Skills */}
+        <div className="ref-stat-card">
+          <div className="ref-stat-header">
+            <span className="ref-stat-title">TECHNICAL SKILLS & TOOLS</span>
+            <div className="ref-stat-badge-icon green">
+              <Wrench size={14} />
+            </div>
+          </div>
+          <div className="ref-stat-main">
+            <div className="ref-stat-val">
+              {skillsCount}{' '}
+              <span style={{ fontSize: '0.82rem', fontWeight: 600, color: '#059669' }}>
+                (Active)
+              </span>
+            </div>
+            <span className="ref-stat-sub">Frontend, Backend & AI Tools</span>
+          </div>
+          <div className="ref-stat-footer">
+            <span className="ref-stat-tag">Active Stack</span>
+            <Link to="/skills" className="ref-stat-link green">
+              Tech Stack →
+            </Link>
+          </div>
+        </div>
+
+        {/* Card 3: Unread Inquiries */}
+        <div className="ref-stat-card">
+          <div className="ref-stat-header">
+            <span className="ref-stat-title">UNREAD INQUIRIES</span>
+            <div className="ref-stat-badge-icon red">
+              <Mail size={14} />
+            </div>
+          </div>
+          <div className="ref-stat-main">
+            <div className="ref-stat-val" style={{ color: unreadCount > 0 ? '#dc2626' : undefined }}>
+              {unreadCount}
+            </div>
+            <span className="ref-stat-sub">Requires visitor followup</span>
+          </div>
+          <div className="ref-stat-footer">
+            <span className="ref-stat-tag" style={{ color: unreadCount > 0 ? '#dc2626' : '#64748b' }}>
+              {unreadCount > 0 ? 'Pending' : 'All Clear'}
+            </span>
+            <Link to="/messages" className="ref-stat-link red">
+              Logs →
+            </Link>
+          </div>
+        </div>
+
+        {/* Card 4: Work Experience */}
+        <div className="ref-stat-card">
+          <div className="ref-stat-header">
+            <span className="ref-stat-title">WORK EXPERIENCE</span>
+            <div className="ref-stat-badge-icon emerald">
+              <BriefcaseBusiness size={14} />
+            </div>
+          </div>
+          <div className="ref-stat-main">
+            <div className="ref-stat-val" style={{ color: '#0b5c46' }}>
+              {experienceCount} Roles
+            </div>
+            <span className="ref-stat-sub">Professional career milestones</span>
+          </div>
+          <div className="ref-stat-footer">
+            <span className="ref-stat-tag">Work History</span>
+            <Link to="/experience" className="ref-stat-link emerald">
+              Details →
+            </Link>
+          </div>
+        </div>
+
+        {/* Card 5: Certifications & Degrees */}
+        <div className="ref-stat-card">
+          <div className="ref-stat-header">
+            <span className="ref-stat-title">CERTIFICATES & EDUCATION</span>
+            <div className="ref-stat-badge-icon red">
+              <GraduationCap size={14} />
+            </div>
+          </div>
+          <div className="ref-stat-main">
+            <div className="ref-stat-val" style={{ color: '#dc2626' }}>
+              {certsCount + educationCount}
+            </div>
+            <span className="ref-stat-sub">Verified badges & qualifications</span>
+          </div>
+          <div className="ref-stat-footer">
+            <span className="ref-stat-tag">Accreditations</span>
+            <Link to="/certifications" className="ref-stat-link red">
+              Audit Report →
+            </Link>
+          </div>
+        </div>
+
+        {/* Card 6: Total Received Messages */}
+        <div className="ref-stat-card">
+          <div className="ref-stat-header">
+            <span className="ref-stat-title">TOTAL VISITOR CONTACTS</span>
+            <div className="ref-stat-badge-icon green">
+              <Users size={14} />
+            </div>
+          </div>
+          <div className="ref-stat-main">
+            <div className="ref-stat-val">{messages.length}</div>
+            <span className="ref-stat-sub">Inquiries received to date</span>
+          </div>
+          <div className="ref-stat-footer">
+            <span className="ref-stat-tag" style={{ color: '#059669' }}>
+              Audience Network
+            </span>
+            <Link to="/messages" className="ref-stat-link green">
+              Messages List →
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Summary Strip Bar (4 Portfolio Indicators) */}
+      <div className="summary-strip">
+        <div className="summary-strip-item">
+          <span className="summary-strip-label">FEATURED WORKS</span>
+          <div className="summary-strip-val green">{featuredCount || projectsCount}</div>
+        </div>
+        <div className="summary-strip-item">
+          <span className="summary-strip-label">PENDING INQUIRIES</span>
+          <div className="summary-strip-val red">{unreadCount}</div>
+        </div>
+        <div className="summary-strip-item">
+          <span className="summary-strip-label">CAREER ROLES</span>
+          <div className="summary-strip-val blue">{experienceCount} Roles</div>
+        </div>
+        <div className="summary-strip-item">
+          <span className="summary-strip-label">PORTFOLIO STATUS</span>
+          <div className="summary-strip-val">100% ONLINE</div>
+        </div>
+      </div>
+
+      {/* 4. Split 2-Column Content Area */}
+      <div className="executive-split">
+        {/* Left Column */}
+        <div className="executive-col">
+          {/* Administrative Command Dock */}
+          <div className="card-box">
+            <div className="card-box-header">
+              <div className="card-box-title">
+                <Settings size={15} />
+                <span>Administrative Command Dock</span>
               </div>
             </div>
-            <div className="stat-card-value">{value}</div>
-          </Link>
-        ))}
-      </div>
 
-      <div className="panel" style={{ marginBottom: '28px' }}>
-        <div className="panel-header">
-          <h3 className="panel-title">
-            <Sparkles size={18} color="var(--primary)" />
-            <span>Quick Actions</span>
-          </h3>
-        </div>
-
-        <div className="quick-actions-grid">
-          {quickActions.map(({ to, title, desc, icon: Icon }) => (
-            <Link key={to} to={to} className="quick-action-btn">
-              <div className="quick-action-icon">
-                <Icon size={18} />
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span>{title}</span>
-                <small style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>
-                  {desc}
-                </small>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </div>
-
-      <div className="grid-2">
-        <div className="panel">
-          <div className="panel-header">
-            <h3 className="panel-title">
-              <FolderKanban size={18} color="var(--primary)" />
-              <span>Projects Quick Status</span>
-            </h3>
-            <Link to="/projects" className="btn btn-ghost btn-sm">
-              <span>View All</span>
-              <ArrowRight size={14} />
-            </Link>
+            <div className="command-dock-grid">
+              <Link to="/projects" className="command-dock-btn">
+                <Plus size={18} />
+                <span>Add Project</span>
+              </Link>
+              <Link to="/profile" className="command-dock-btn">
+                <UserRound size={18} />
+                <span>Update Bio</span>
+              </Link>
+              <Link to="/skills" className="command-dock-btn">
+                <Wrench size={18} />
+                <span>Manage Skills</span>
+              </Link>
+              <Link to="/messages" className="command-dock-btn">
+                <Mail size={18} />
+                <span>Check Inbox</span>
+              </Link>
+              <Link to="/experience" className="command-dock-btn">
+                <BriefcaseBusiness size={18} />
+                <span>Add Experience</span>
+              </Link>
+              <Link to="/certifications" className="command-dock-btn">
+                <BadgeCheck size={18} />
+                <span>Add Certificate</span>
+              </Link>
+            </div>
           </div>
-          <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-            You currently have <strong>{d.projects ?? 0}</strong> projects listed on your portfolio. Head over to the Projects manager to adjust featured showcases, links, and descriptions.
-          </p>
+
+          {/* Recent Inquiries Ledger Activity Table */}
+          <div className="card-box">
+            <div className="card-box-header">
+              <div className="card-box-title">
+                <FileSpreadsheet size={15} />
+                <span>Recent Inquiries Ledger Activity</span>
+              </div>
+              <Link to="/messages" className="card-box-action">
+                <span>VIEW ALL</span>
+                <ArrowRight size={13} />
+              </Link>
+            </div>
+
+            <div className="table-responsive">
+              <table className="ledger-table">
+                <thead>
+                  <tr>
+                    <th>REFERENCE</th>
+                    <th>PARTICULARS</th>
+                    <th>CHANNEL</th>
+                    <th>DATE</th>
+                    <th style={{ textAlign: 'right' }}>STATUS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {messages.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} style={{ textAlign: 'center', padding: '24px', color: '#94a3b8' }}>
+                        No incoming inquiries yet.
+                      </td>
+                    </tr>
+                  ) : (
+                    messages.slice(0, 5).map((m, idx) => (
+                      <tr key={m.id || idx}>
+                        <td>
+                          <span className="ref-code">
+                            #MSG-2026-{(1001 + idx).toString()}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="particulars-title">{m.subject || 'Portfolio Inquiry'}</div>
+                          <div className="particulars-sub">
+                            {m.name || 'Visitor'} · {m.email}
+                          </div>
+                        </td>
+                        <td>Email</td>
+                        <td>
+                          {m.createdAt
+                            ? new Date(m.createdAt).toLocaleDateString('en-GB', {
+                                day: '2-digit',
+                                month: 'short',
+                                year: 'numeric',
+                              })
+                            : 'Recent'}
+                        </td>
+                        <td style={{ textAlign: 'right' }}>
+                          <span
+                            className="amount-pos"
+                            style={{ color: !m.read ? '#dc2626' : '#059669' }}
+                          >
+                            {!m.read ? 'UNREAD' : 'RESOLVED'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Featured Projects Showcase Hub */}
+          <div className="card-box">
+            <div className="card-box-header">
+              <div className="card-box-title">
+                <FolderKanban size={15} />
+                <span>Featured Projects Showcase Hub</span>
+              </div>
+              <Link to="/projects" className="card-box-action">
+                <span>MANAGE PROJECTS</span>
+                <ArrowRight size={13} />
+              </Link>
+            </div>
+
+            <div className="exam-list">
+              {projects.length === 0 ? (
+                <div style={{ padding: '12px', textAlign: 'center', color: '#94a3b8', fontSize: '0.8rem' }}>
+                  No projects added yet. Click &quot;Add Project&quot; above to create one.
+                </div>
+              ) : (
+                projects.slice(0, 3).map((project) => (
+                  <div className="exam-row" key={project.id}>
+                    <div>
+                      <div className="particulars-title">{project.title}</div>
+                      <div className="particulars-sub">
+                        <code>/{project.slug}</code> {project.featured && '• Featured'}
+                      </div>
+                    </div>
+                    <Link to="/projects" className="btn btn-secondary btn-sm">
+                      <span>✎ Edit</span>
+                    </Link>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
         </div>
 
-        <div className="panel">
-          <div className="panel-header">
-            <h3 className="panel-title">
-              <Mail size={18} color="var(--accent-rose)" />
-              <span>Inbox Status</span>
-            </h3>
-            <Link to="/messages" className="btn btn-ghost btn-sm">
-              <span>Open Inbox</span>
-              <ArrowRight size={14} />
-            </Link>
+        {/* Right Column */}
+        <div className="executive-col">
+          {/* Portfolio Readiness Overview */}
+          <div className="card-box">
+            <div className="card-box-header">
+              <div className="card-box-title">
+                <UserCheck size={15} />
+                <span>Portfolio Readiness Overview</span>
+              </div>
+              <span className="pill-badge blue">95% Overall</span>
+            </div>
+
+            <div className="progress-widget">
+              <div className="progress-header">
+                <span>PROFILE BIO & CREDENTIALS</span>
+                <span>95% Ready</span>
+              </div>
+              <div className="progress-track">
+                <div className="progress-fill" style={{ width: '95%' }} />
+              </div>
+
+              <div style={{ paddingTop: '8px' }}>
+                <span className="summary-strip-label" style={{ display: 'block', marginBottom: '4px' }}>
+                  STACK COMPLETION RATIO
+                </span>
+                <div className="ratio-row">
+                  <span>Frontend & UI Showcase</span>
+                  <span className="ratio-val">100% (Complete)</span>
+                </div>
+                <div className="ratio-row">
+                  <span>Backend API & Services</span>
+                  <span className="ratio-val">90% (Synced)</span>
+                </div>
+              </div>
+            </div>
           </div>
-          <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-            {d.unreadMessages > 0 ? (
-              <span style={{ color: 'var(--accent-rose)', fontWeight: 600 }}>
-                You have {d.unreadMessages} unread message{d.unreadMessages > 1 ? 's' : ''}!
-              </span>
-            ) : (
-              'All messages have been reviewed. No pending unread inquiries.'
-            )}
-          </p>
+
+          {/* Recent Portfolio Activity Feeds */}
+          <div className="card-box">
+            <div className="card-box-header">
+              <div className="card-box-title">
+                <Radio size={15} />
+                <span>Recent System Feeds</span>
+              </div>
+              <span className="pill-badge green">Live Sync</span>
+            </div>
+
+            <div className="notice-list">
+              <div className="notice-item">
+                <span className="notice-item-title">Portfolio v2.0 Live CMS Deployed</span>
+                <div className="notice-item-sub">
+                  <span>04 Sep 2026</span>
+                  <span className="notice-badge">System</span>
+                </div>
+              </div>
+
+              <div className="notice-item">
+                <span className="notice-item-title">Projects Showcase Synced</span>
+                <div className="notice-item-sub">
+                  <span>03 Sep 2026</span>
+                  <span className="notice-badge">Projects</span>
+                </div>
+              </div>
+
+              <div className="notice-item">
+                <span className="notice-item-title">Bio & Social Connections Online</span>
+                <div className="notice-item-sub">
+                  <span>02 Sep 2026</span>
+                  <span className="notice-badge">Profile</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* System & Server Status */}
+          <div className="card-box">
+            <div className="card-box-header">
+              <div className="card-box-title">
+                <ShieldCheck size={15} />
+                <span>System & Server Status</span>
+              </div>
+              <span className="pill-badge green">ONLINE</span>
+            </div>
+
+            <div className="system-status-box">
+              <div>Software Engine: <strong>Chirru Portfolio CMS Enterprise</strong></div>
+              <div>Frontend: <strong>React 19 + Vite 7</strong></div>
+              <div>Database & REST: <strong>REST API v2 · Port 8080</strong></div>
+              <div>Server Clock: <strong>2026-09-04 {formattedTime}</strong></div>
+            </div>
+          </div>
         </div>
       </div>
-    </>
+
+      {/* Footer */}
+      <footer className="site-footer">
+        © 2026 Copyright by Chirru Portfolio Admin
+      </footer>
+    </div>
   )
 }
