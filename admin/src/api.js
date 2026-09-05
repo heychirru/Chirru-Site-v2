@@ -1,4 +1,4 @@
-const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v2').replace(/\/$/, '')
+const API_URL = 'https://chirru-backend.onrender.com/api/v2s'
 const TOKEN_KEY = 'chirru_admin_access_token'
 
 export const authStore = {
