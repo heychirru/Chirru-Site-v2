@@ -1,4 +1,4 @@
-const API_URL = 'https://chirru-backend.onrender.com/api/v2'
+const API_URL = 'https://api.chirr.in/api/v2'
 const TOKEN_KEY = 'chirru_admin_access_token'
 
 export const authStore = {
