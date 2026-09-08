@@ -6,7 +6,7 @@ export const authStore = {
     try {
       return localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY)
     } catch {
-      return null
+      return null 
     }
   },
   set: (token) => {

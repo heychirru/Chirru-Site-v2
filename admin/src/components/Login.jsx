@@ -19,7 +19,7 @@ export default function Login() {
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
-  const publicSiteUrl = import.meta.env.VITE_PUBLIC_SITE_URL || 'http://localhost:5174'
+  const publicSiteUrl = import.meta.env.VITE_PUBLIC_SITE_URL
 
   async function handleSubmit(event) {
     event.preventDefault()
