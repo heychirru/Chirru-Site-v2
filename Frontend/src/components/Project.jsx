@@ -1,17 +1,13 @@
 import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowUpRight, Github, FolderGit2, BookOpen } from 'lucide-react'
+import { ArrowUpRight, Github, FolderGit2 } from 'lucide-react'
 
-function ProjectCardMedia({ project, onSelect }) {
+function ProjectCardMedia({ project }) {
   const [imgError, setImgError] = useState(false)
   const hasValidImage = Boolean(project.imageUrl && !imgError)
 
   return (
-    <div
-      className="project-media-wrapper"
-      onClick={() => onSelect?.(project)}
-      style={{ cursor: 'pointer' }}
-    >
+    <div className="project-media-wrapper">
       {hasValidImage ? (
         <img
           src={project.imageUrl}
@@ -29,16 +25,11 @@ function ProjectCardMedia({ project, onSelect }) {
         </div>
       )}
       {project.featured && <span className="project-featured-badge">Featured</span>}
-      <div className="project-media-overlay">
-        <span className="project-view-hint">
-          <BookOpen size={14} /> View Case Study
-        </span>
-      </div>
     </div>
   )
 }
 
-export default function Project({ projects = [], loading, onSelectProject }) {
+export default function Project({ projects = [], loading }) {
   const [activeFilter, setActiveFilter] = useState('all')
 
   const filterOptions = useMemo(() => {
@@ -61,13 +52,13 @@ export default function Project({ projects = [], loading, onSelectProject }) {
         {/* Section Header */}
         <div className="section-header">
           <span className="eyebrow">
-            <FolderGit2 size={14} /> Portfolio & Case Studies
+            <FolderGit2 size={14} /> Portfolio Projects
           </span>
           <h2 className="section-title">
             Featured <span className="accent-highlight">Projects</span>
           </h2>
           <p className="section-subtitle">
-            Selected software architectures, web applications, and case studies built with modern tech stacks.
+            Selected software architectures, web applications, and systems built with modern tech stacks.
           </p>
         </div>
 
@@ -117,15 +108,11 @@ export default function Project({ projects = [], loading, onSelectProject }) {
                   transition={{ duration: 0.35, delay: index * 0.06 }}
                 >
                   {/* Media Thumbnail */}
-                  <ProjectCardMedia project={project} onSelect={onSelectProject} />
+                  <ProjectCardMedia project={project} />
 
                   {/* Card Body */}
                   <div className="project-card-body">
-                    <h3
-                      className="project-card-title"
-                      onClick={() => onSelectProject?.(project)}
-                      style={{ cursor: 'pointer' }}
-                    >
+                    <h3 className="project-card-title">
                       {project.title}
                     </h3>
                     <p className="project-card-desc">{desc}</p>
@@ -141,24 +128,9 @@ export default function Project({ projects = [], loading, onSelectProject }) {
                       </div>
                     )}
 
-                    {/* Card Footer with Case Study and Links */}
+                    {/* Card Footer with Live and Code Links */}
                     <div className="project-card-footer">
-                      <button className="case-study-btn" onClick={() => onSelectProject?.(project)}>
-                        <BookOpen size={15} /> Case Study
-                      </button>
-
                       <div className="project-action-links">
-                        {project.githubUrl && (
-                          <a
-                            href={project.githubUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="project-action-link"
-                            aria-label="View source code on GitHub"
-                          >
-                            <Github size={16} /> Code
-                          </a>
-                        )}
                         {project.liveUrl && (
                           <a
                             href={project.liveUrl}
@@ -167,7 +139,18 @@ export default function Project({ projects = [], loading, onSelectProject }) {
                             className="project-action-link"
                             aria-label="Visit live demo"
                           >
-                            <ArrowUpRight size={16} /> Demo
+                            <ArrowUpRight size={15} /> Live Demo
+                          </a>
+                        )}
+                        {project.githubUrl && (
+                          <a
+                            href={project.githubUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="project-action-link"
+                            aria-label="View source code on GitHub"
+                          >
+                            <Github size={15} /> Code
                           </a>
                         )}
                       </div>

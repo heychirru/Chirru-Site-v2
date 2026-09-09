@@ -1,4 +1,4 @@
-const API_URL = (import.meta.env.VITE_API_URL )
+const API_URL = (import.meta.env.VITE_API_URL)
 const TOKEN_KEY = 'chirru_admin_access_token'
 
 export const authStore = {
@@ -6,21 +6,21 @@ export const authStore = {
     try {
       return localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY)
     } catch {
-      return null 
+      return null
     }
   },
   set: (token) => {
     try {
       localStorage.setItem(TOKEN_KEY, token)
       sessionStorage.setItem(TOKEN_KEY, token)
-    } catch {}
+    } catch { }
     window.dispatchEvent(new Event('auth-change'))
   },
   clear: () => {
     try {
       localStorage.removeItem(TOKEN_KEY)
       sessionStorage.removeItem(TOKEN_KEY)
-    } catch {}
+    } catch { }
     window.dispatchEvent(new Event('auth-change'))
   },
 }
@@ -52,7 +52,7 @@ async function request(path, options = {}, retry = true) {
     try {
       const body = await response.json()
       message = body.message || message
-    } catch {}
+    } catch { }
     throw new Error(message)
   }
   if (response.status === 204) return null
@@ -122,7 +122,7 @@ export const adminApi = {
       try {
         const body = await response.json()
         message = body.message || message
-      } catch {}
+      } catch { }
       throw new Error(message)
     }
     return response.json()
@@ -153,16 +153,13 @@ export const adminApi = {
   createResume: (body) => request('/admin/resumes', { method: 'POST', body: JSON.stringify(body) }),
   deleteResume: (id) => request(`/admin/resumes/${id}`, { method: 'DELETE' }),
 
-  // Project Tags & Deep Case Studies
+  // Project Tags
   tags: () => request('/admin/tags'),
   createTag: (body) => request('/admin/tags', { method: 'POST', body: JSON.stringify(body) }),
   deleteTag: (id) => request(`/admin/tags/${id}`, { method: 'DELETE' }),
   projectTags: (projectId) => request(`/admin/projects/${projectId}/tags`),
   saveProjectTags: (projectId, tagIds) =>
     request(`/admin/projects/${projectId}/tags`, { method: 'PUT', body: JSON.stringify({ tagIds }) }),
-  caseStudy: (projectId) => request(`/admin/projects/${projectId}/case-study`),
-  saveCaseStudy: (projectId, body) =>
-    request(`/admin/projects/${projectId}/case-study`, { method: 'PUT', body: JSON.stringify(body) }),
 
   // Admin Notifications
   notifications: (unreadOnly = false) => request(`/admin/notifications?unreadOnly=${unreadOnly}`),

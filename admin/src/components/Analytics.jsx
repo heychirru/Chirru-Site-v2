@@ -139,7 +139,7 @@ export default function Analytics() {
                 </div>
               </div>
               <div className="analytics-kpi-val">{dashData.projectViews || projectViews || 0}</div>
-              <span className="analytics-kpi-sub">{projectViews} case study views</span>
+              <span className="analytics-kpi-sub">{projectViews} project views</span>
             </div>
 
             <div className="analytics-kpi-card">

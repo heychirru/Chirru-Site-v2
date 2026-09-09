@@ -20,11 +20,13 @@ public class ApiExceptionHandler {
     @ExceptionHandler(LoginRateLimitException.class)
     ResponseEntity<Map<String, Object>> tooManyLoginAttempts(LoginRateLimitException ex) {
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
-                .header("Retry-After", String.valueOf(Math.max(1, ex.retryAt().getEpochSecond() - Instant.now().getEpochSecond())))
+                .header("Retry-After",
+                        String.valueOf(Math.max(1, ex.retryAt().getEpochSecond() - Instant.now().getEpochSecond())))
                 .body(Map.of("error", "TOO_MANY_REQUESTS", "message", ex.getMessage()));
     }
 
-    @ExceptionHandler({BadCredentialsException.class, org.springframework.security.core.AuthenticationException.class})
+    @ExceptionHandler({ BadCredentialsException.class,
+            org.springframework.security.core.AuthenticationException.class })
     ResponseEntity<Map<String, String>> unauthorized() {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(Map.of("error", "UNAUTHORIZED", "message", "Invalid credentials"));
@@ -40,7 +42,8 @@ public class ApiExceptionHandler {
     ResponseEntity<Map<String, Object>> responseStatus(ResponseStatusException ex) {
         String message = ex.getStatusCode().is4xxClientError() ? ex.getReason() : "Request failed";
         return ResponseEntity.status(ex.getStatusCode())
-                .body(Map.of("error", ex.getStatusCode().toString(), "message", message == null ? "Request failed" : message));
+                .body(Map.of("error", ex.getStatusCode().toString(), "message",
+                        message == null ? "Request failed" : message));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -51,7 +54,8 @@ public class ApiExceptionHandler {
                 "fields", ex.getBindingResult().getFieldErrors().stream()
                         .collect(java.util.stream.Collectors.toMap(
                                 error -> error.getField(),
-                                error -> error.getDefaultMessage() == null ? "Invalid value" : error.getDefaultMessage(),
+                                error -> error.getDefaultMessage() == null ? "Invalid value"
+                                        : error.getDefaultMessage(),
                                 (first, ignored) -> first))));
     }
 

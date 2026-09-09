@@ -2,7 +2,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   Check,
   ExternalLink,
-  FileCode2,
   FolderKanban,
   Github,
   Pencil,
@@ -11,26 +10,28 @@ import {
   Search,
   Star,
   Trash2,
+  Wrench,
   X,
 } from 'lucide-react'
 import { useState } from 'react'
 import { adminApi } from '../api'
 import CloudinaryUpload from './CloudinaryUpload'
-import ProjectCaseStudyModal from './ProjectCaseStudyModal'
 
 export default function Projects() {
   const qc = useQueryClient()
   const q = useQuery({ queryKey: ['projects'], queryFn: adminApi.projects })
+  const skillsQuery = useQuery({ queryKey: ['skills'], queryFn: adminApi.skills })
 
   const [editingId, setEditingId] = useState(null)
-  const [activeCaseStudyProject, setActiveCaseStudyProject] = useState(null)
   const [title, setTitle] = useState('')
-  const [slug, setSlug] = useState('')
   const [description, setDescription] = useState('')
   const [featured, setFeatured] = useState(false)
   const [liveUrl, setLiveUrl] = useState('')
   const [githubUrl, setGithubUrl] = useState('')
   const [imageUrl, setImageUrl] = useState('')
+  const [selectedSkillIds, setSelectedSkillIds] = useState([])
+  const [newSkillName, setNewSkillName] = useState('')
+  const [addingSkill, setAddingSkill] = useState(false)
   const [search, setSearch] = useState('')
 
   const [error, setError] = useState('')
@@ -46,22 +47,44 @@ export default function Projects() {
     )
   }
 
-  const handleTitleChange = (val) => {
-    setTitle(val)
-    if (!editingId && (!slug || slug === title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''))) {
-      setSlug(val.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''))
+  const allSkills = skillsQuery.data || []
+
+  const toggleSkill = (skillId) => {
+    setSelectedSkillIds((prev) =>
+      prev.includes(skillId) ? prev.filter((id) => id !== skillId) : [...prev, skillId]
+    )
+  }
+
+  async function handleQuickAddSkill() {
+    const trimmed = newSkillName.trim()
+    if (!trimmed) return
+    setAddingSkill(true)
+    try {
+      const created = await adminApi.createSkill({
+        name: trimmed,
+        category: 'BACKEND',
+      })
+      await qc.invalidateQueries({ queryKey: ['skills'] })
+      if (created?.id) {
+        setSelectedSkillIds((prev) => [...prev, created.id])
+      }
+      setNewSkillName('')
+    } catch (err) {
+      setError(err.message || 'Failed to add technology tag.')
+    } finally {
+      setAddingSkill(false)
     }
   }
 
   const handleStartEdit = (project) => {
     setEditingId(project.id)
     setTitle(project.title || '')
-    setSlug(project.slug || '')
     setDescription(project.description || '')
     setFeatured(Boolean(project.featured))
     setLiveUrl(project.liveUrl || '')
     setGithubUrl(project.githubUrl || '')
     setImageUrl(project.imageUrl || '')
+    setSelectedSkillIds((project.skills || []).map((s) => s.id || s))
     setError('')
     setSuccess('')
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -70,12 +93,13 @@ export default function Projects() {
   const handleCancelEdit = () => {
     setEditingId(null)
     setTitle('')
-    setSlug('')
     setDescription('')
     setFeatured(false)
     setLiveUrl('')
     setGithubUrl('')
     setImageUrl('')
+    setSelectedSkillIds([])
+    setNewSkillName('')
     setError('')
     setSuccess('')
   }
@@ -88,14 +112,14 @@ export default function Projects() {
 
     const payload = {
       title,
-      slug,
       description,
       featured,
       displayOrder: 0,
       liveUrl: liveUrl || undefined,
       githubUrl: githubUrl || undefined,
       imageUrl: imageUrl || undefined,
-      skillIds: [],
+      skillIds: selectedSkillIds,
+      technologyIds: [],
     }
 
     try {
@@ -133,26 +157,19 @@ export default function Projects() {
   const projects = q.data || []
   const filteredProjects = projects.filter((p) =>
     (p.title || '').toLowerCase().includes(search.toLowerCase()) ||
-    (p.slug || '').toLowerCase().includes(search.toLowerCase()) ||
-    (p.description || '').toLowerCase().includes(search.toLowerCase())
+    (p.description || '').toLowerCase().includes(search.toLowerCase()) ||
+    (p.skills || []).some((s) => (s.name || '').toLowerCase().includes(search.toLowerCase()))
   )
 
   return (
     <>
-      {activeCaseStudyProject && (
-        <ProjectCaseStudyModal
-          project={activeCaseStudyProject}
-          onClose={() => setActiveCaseStudyProject(null)}
-        />
-      )}
-
       <div className="page-header">
         <div className="page-header-text">
           <h1>
             <FolderKanban size={26} color="var(--primary)" />
             <span>Projects Showcase</span>
           </h1>
-          <p>Create, manage, and curate featured projects, case studies, and Cloudinary media for your portfolio.</p>
+          <p>Create, manage, and curate featured projects, media, and tech stacks for your portfolio.</p>
         </div>
       </div>
 
@@ -194,19 +211,8 @@ export default function Projects() {
               <input
                 className="form-input"
                 value={title}
-                onChange={(e) => handleTitleChange(e.target.value)}
+                onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. AI Workflow Engine"
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Unique Slug / URL Path *</label>
-              <input
-                className="form-input"
-                value={slug}
-                onChange={(e) => setSlug(e.target.value)}
-                placeholder="ai-workflow-engine"
                 required
               />
             </div>
@@ -221,6 +227,77 @@ export default function Projects() {
                 onChange={(url) => setImageUrl(url)}
                 helperText="Upload JPEG, PNG, or WebP preview (Max 5 MB)"
               />
+            </div>
+
+            {/* Technologies & Skills Tags Selector */}
+            <div className="form-group">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                <label className="form-label" style={{ marginBottom: 0 }}>
+                  <Wrench size={14} style={{ display: 'inline', marginRight: 5, verticalAlign: 'middle' }} />
+                  Technologies & Skills Tags
+                </label>
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+                  {selectedSkillIds.length} selected
+                </span>
+              </div>
+
+              {allSkills.length > 0 ? (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, padding: '6px 0 10px' }}>
+                  {allSkills.map((skill) => {
+                    const isSelected = selectedSkillIds.includes(skill.id)
+                    return (
+                      <button
+                        key={skill.id}
+                        type="button"
+                        className={`btn btn-sm ${isSelected ? 'btn-primary' : 'btn-secondary'}`}
+                        onClick={() => toggleSkill(skill.id)}
+                        style={{
+                          borderRadius: 20,
+                          fontSize: '0.78rem',
+                          padding: '3px 12px',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 4,
+                        }}
+                      >
+                        {isSelected && <Check size={12} />}
+                        <span>{skill.name}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              ) : (
+                <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: 8 }}>
+                  No technologies created yet. Add one below to tag this project.
+                </p>
+              )}
+
+              {/* Inline Quick Add Technology Tag */}
+              <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+                <input
+                  className="form-input"
+                  placeholder="Add custom technology tag (e.g. Java, React, Docker)..."
+                  value={newSkillName}
+                  onChange={(e) => setNewSkillName(e.target.value)}
+                  style={{ fontSize: '0.82rem', padding: '6px 12px' }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      handleQuickAddSkill()
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={handleQuickAddSkill}
+                  disabled={!newSkillName.trim() || addingSkill}
+                  style={{ whiteSpace: 'nowrap' }}
+                >
+                  <Plus size={13} />
+                  <span>{addingSkill ? 'Adding…' : 'Add Tag'}</span>
+                </button>
+              </div>
             </div>
 
             <div className="form-row">
@@ -312,7 +389,7 @@ export default function Projects() {
               <Search size={16} />
               <input
                 className="form-input"
-                placeholder="Search projects..."
+                placeholder="Search projects by title, desc, or technology..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -381,8 +458,30 @@ export default function Projects() {
                         </span>
                       )}
                     </div>
+
+                    {/* Assigned Technologies Badges */}
+                    {project.skills && project.skills.length > 0 && (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 4, marginBottom: 4 }}>
+                        {project.skills.map((skill) => (
+                          <span
+                            key={skill.id || skill.name}
+                            style={{
+                              fontSize: '0.7rem',
+                              fontWeight: 600,
+                              background: 'var(--bg-card, #f8fafc)',
+                              color: 'var(--text-secondary, #475569)',
+                              padding: '1px 8px',
+                              borderRadius: 10,
+                              border: '1px solid var(--border-card, #e2e8f0)',
+                            }}
+                          >
+                            {skill.name}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
                     <div className="data-row-subtitle">
-                      <code>/{project.slug}</code>
                       {project.liveUrl && (
                         <a
                           href={project.liveUrl}
@@ -407,15 +506,6 @@ export default function Projects() {
                   </div>
 
                   <div className="data-row-actions" style={{ display: 'flex', gap: 6 }}>
-                    <button
-                      className="btn btn-secondary btn-sm"
-                      onClick={() => setActiveCaseStudyProject(project)}
-                      title="Edit Deep Case Study & Tags"
-                      style={{ gap: 4, fontSize: '0.78rem' }}
-                    >
-                      <FileCode2 size={13} color="var(--primary)" />
-                      <span>Case Study</span>
-                    </button>
                     <button
                       className="btn btn-secondary btn-sm"
                       onClick={() => handleStartEdit(project)}

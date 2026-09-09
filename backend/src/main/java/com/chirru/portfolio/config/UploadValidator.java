@@ -1,7 +1,6 @@
 package com.chirru.portfolio.config;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -10,11 +9,9 @@ import java.util.Set;
 @Component
 public class UploadValidator {
     private static final Set<String> IMAGE_TYPES = Set.of(
-            "image/jpeg", "image/png", "image/webp"
-    );
+            "image/jpeg", "image/png", "image/webp");
     private static final Set<String> DOCUMENT_TYPES = Set.of(
-            "application/pdf"
-    );
+            "application/pdf");
 
     private final long maxImageBytes;
     private final long maxDocumentBytes;

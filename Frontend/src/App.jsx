@@ -10,12 +10,10 @@ import Internship from './components/Internship'
 import Education from './components/Education'
 import Contact from './components/Contact'
 import Footer from './components/Footer'
-import ProjectModal from './components/ProjectModal'
 import Toast from './components/Toast'
 
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false)
-  const [selectedProject, setSelectedProject] = useState(null)
   const [toasts, setToasts] = useState([])
 
   // Theme state: default light (Neumorphic Soft-Tech) with persistence
@@ -45,11 +43,10 @@ export default function App() {
     setToasts((prev) => prev.filter((t) => t.id !== id))
   }
 
-  // Escape key listener for closing modals/drawers
+  // Escape key listener for closing drawers
   useEffect(() => {
     function handleKeyDown(e) {
       if (e.key === 'Escape') {
-        setSelectedProject(null)
         setMenuOpen(false)
       }
     }
@@ -103,9 +100,9 @@ export default function App() {
   const socialLinks = socialLinksQuery.data || []
 
   return (
-    <div className="site-shell">
-      {/* Ambient glowing backdrop elements */}
-      <div className="ambient-bg" aria-hidden="true">
+    <div className="portfolio-app">
+      {/* Background Ambience Elements */}
+      <div className="ambient-background">
         <div className="ambient-glow-1" />
         <div className="ambient-glow-2" />
         <div className="ambient-glow-3" />
@@ -139,7 +136,6 @@ export default function App() {
         <Project
           projects={projects}
           loading={projectsQuery.isLoading}
-          onSelectProject={(proj) => setSelectedProject(proj)}
         />
         <Internship items={experience} />
         <Education items={education} certifications={certifications} />
@@ -148,12 +144,6 @@ export default function App() {
 
       {/* Footer */}
       <Footer profile={profile} socialLinks={socialLinks} />
-
-      {/* Project Case Study Modal */}
-      <ProjectModal
-        project={selectedProject}
-        onClose={() => setSelectedProject(null)}
-      />
 
       <Toast toasts={toasts} onDismiss={dismissToast} />
     </div>

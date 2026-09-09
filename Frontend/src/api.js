@@ -57,7 +57,6 @@ export const portfolioApi = {
   // Enhanced feature endpoints
   socialLinks: () => request('/portfolio/social-links'),
   seo: (page = 'home') => request(`/portfolio/seo?page=${encodeURIComponent(page)}`),
-  caseStudy: (projectId) => request(`/portfolio/project/${projectId}/case-study`),
   projectTags: (projectId) => request(`/portfolio/project/${projectId}/tags`),
   search: (q) => request(`/portfolio/search?q=${encodeURIComponent(q)}`),
 

@@ -23,7 +23,6 @@ public class FeatureManagementController {
     }
     @GetMapping("/portfolio/social-links") public List<Map<String,Object>> publicSocialLinks(){return service.socialLinks(true);}
     @GetMapping("/portfolio/seo") public Map<String,Object> publicSeo(@RequestParam(defaultValue="home") String page){return service.seo(page);}
-    @GetMapping("/portfolio/project/{projectId}/case-study") public Map<String,Object> publicCaseStudy(@PathVariable long projectId){return service.caseStudy(projectId);}
     @GetMapping("/portfolio/project/{projectId}/technologies") public List<Map<String,Object>> publicProjectTechnologies(@PathVariable long projectId){return service.projectTechnologies(projectId);}
     @GetMapping("/portfolio/search") public List<Map<String,Object>> publicSearch(@RequestParam String q){return service.search(q.trim());}
 
@@ -36,8 +35,6 @@ public class FeatureManagementController {
     @DeleteMapping("/admin/social-links/{id}") @PreAuthorize("hasRole('ADMIN')") @ResponseStatus(HttpStatus.NO_CONTENT) public void socialDelete(@PathVariable long id){service.deleteSocial(id);}
     @GetMapping("/admin/seo/{page}") @PreAuthorize("hasRole('ADMIN')") public Map<String,Object> seo(@PathVariable String page){return service.seo(page);}
     @PutMapping("/admin/seo/{page}") @PreAuthorize("hasRole('ADMIN')") @ResponseStatus(HttpStatus.NO_CONTENT) public void seoSave(@PathVariable String page,@RequestBody Map<String,Object> b){service.saveSeo(page,str(b,"title"),str(b,"description"),str(b,"keywords"),str(b,"canonicalUrl"),str(b,"ogImageUrl"),bool(b.get("noIndex")));}
-    @GetMapping("/admin/projects/{projectId}/case-study") @PreAuthorize("hasRole('ADMIN')") public Map<String,Object> caseStudy(@PathVariable long projectId){return service.caseStudy(projectId);}
-    @PutMapping("/admin/projects/{projectId}/case-study") @PreAuthorize("hasRole('ADMIN')") @ResponseStatus(HttpStatus.NO_CONTENT) public void caseStudySave(@PathVariable long projectId,@RequestBody Map<String,Object> body){service.saveCaseStudy(projectId,body);}
 
     @GetMapping("/admin/technologies") @PreAuthorize("hasRole('ADMIN')") public List<Map<String,Object>> technologies(){return service.technologies();}
     @PostMapping("/admin/technologies") @PreAuthorize("hasRole('ADMIN')") @ResponseStatus(HttpStatus.CREATED) public Map<String,Object> technology(@RequestBody Map<String,Object> b){return Map.of("id",service.saveTechnology(longValue(b.get("id")),str(b,"name")));}
