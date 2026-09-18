@@ -101,9 +101,11 @@ export default function ContentList({
 
               {formFields.map((field) => (
                 <div className="form-group" key={field.name}>
-                  <label className="form-label">
-                    {field.label} {field.required ? '*' : ''}
-                  </label>
+                  {field.type !== 'checkbox' && (
+                    <label className="form-label">
+                      {field.label} {field.required ? '*' : ''}
+                    </label>
+                  )}
                   {field.type === 'image-upload' ? (
                     <CloudinaryUpload
                       label={field.uploadLabel || 'Upload Image'}
@@ -149,6 +151,17 @@ export default function ContentList({
                         </option>
                       ))}
                     </select>
+                  ) : field.type === 'checkbox' ? (
+                    <label className="form-checkbox-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={!!formData[field.name]}
+                        onChange={(e) =>
+                          handleFieldChange(field.name, e.target.checked)
+                        }
+                      />
+                      <span>{field.label}</span>
+                    </label>
                   ) : (
                     <input
                       className="form-input"

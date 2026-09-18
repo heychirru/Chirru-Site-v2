@@ -13,7 +13,7 @@ export default function Experience() {
       createFn={adminApi.createExperience}
       deleteFn={adminApi.deleteExperience}
       formFields={[
-        {
+        { 
           name: 'position',
           label: 'Position / Job Title',
           placeholder: 'e.g. Senior Full Stack Engineer',
@@ -26,9 +26,21 @@ export default function Experience() {
           required: true,
         },
         {
-          name: 'period',
-          label: 'Time Period',
-          placeholder: 'e.g. Jan 2024 - Present',
+          name: 'startDate',
+          label: 'Start Date',
+          type: 'date',
+          required: true,
+        },
+        {
+          name: 'endDate',
+          label: 'End Date',
+          type: 'date',
+          required: false,
+        },
+        {
+          name: 'current',
+          label: 'Currently Working Here',
+          type: 'checkbox',
           required: false,
         },
         {
@@ -41,7 +53,11 @@ export default function Experience() {
       ]}
       displayPrimary={(item) => item.position || item.title}
       displaySecondary={(item) => item.company}
-      displayExtra={(item) => item.period || item.startDate}
+      displayExtra={(item) => {
+        const start = item.startDate || ''
+        const end = item.current ? 'Present' : item.endDate || ''
+        return start ? `${start} – ${end}` : ''
+      }}
     />
   )
 }

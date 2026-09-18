@@ -1,24 +1,24 @@
 const API_URL = (import.meta.env.VITE_API_URL)
 const TOKEN_KEY = 'chirru_admin_access_token'
 
+try { localStorage.removeItem(TOKEN_KEY) } catch { }
+
 export const authStore = {
   get: () => {
     try {
-      return localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY)
+      return sessionStorage.getItem(TOKEN_KEY)
     } catch {
       return null
     }
   },
   set: (token) => {
     try {
-      localStorage.setItem(TOKEN_KEY, token)
       sessionStorage.setItem(TOKEN_KEY, token)
     } catch { }
     window.dispatchEvent(new Event('auth-change'))
   },
   clear: () => {
     try {
-      localStorage.removeItem(TOKEN_KEY)
       sessionStorage.removeItem(TOKEN_KEY)
     } catch { }
     window.dispatchEvent(new Event('auth-change'))
