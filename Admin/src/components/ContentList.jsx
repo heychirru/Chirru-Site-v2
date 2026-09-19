@@ -127,7 +127,7 @@ export default function ContentList({
                   ) : field.type === 'textarea' ? (
                     <textarea
                       className="form-textarea"
-                      placeholder={field.placeholder || ''}
+                      placeholder={field.placeholder || ' '}
                       value={formData[field.name] || ''}
                       onChange={(e) =>
                         handleFieldChange(field.name, e.target.value)
@@ -166,7 +166,7 @@ export default function ContentList({
                     <input
                       className="form-input"
                       type={field.type || 'text'}
-                      placeholder={field.placeholder || ''}
+                      placeholder={field.placeholder || ' '}
                       value={formData[field.name] || ''}
                       onChange={(e) =>
                         handleFieldChange(field.name, e.target.value)

@@ -990,13 +990,13 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 .form-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
+  gap: 16px;
 }
 
 .form-group {
@@ -1009,6 +1009,89 @@
   font-size: 0.76rem;
   font-weight: 600;
   color: #475569;
+}
+
+/* ==========================================================================
+   FLOATING LABEL FORM FIELDS (ADMIN)
+   ========================================================================== */
+.form-group:has(> .form-input, > .form-textarea, > .form-select, > div > .form-input, > div > .form-textarea, > div > .form-select) {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin-top: 6px;
+}
+
+.form-group:has(> .form-input, > .form-textarea, > .form-select, > div > .form-input, > div > .form-textarea, > div > .form-select) > .form-label {
+  position: absolute;
+  left: 12px;
+  top: 11px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #64748b;
+  pointer-events: none;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  background: transparent;
+  padding: 0 4px;
+  z-index: 3;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: calc(100% - 24px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1;
+}
+
+.form-group:has(> .form-input, > .form-textarea, > .form-select, > div > .form-input, > div > .form-textarea, > div > .form-select) .form-input,
+.form-group:has(> .form-input, > .form-textarea, > .form-select, > div > .form-input, > div > .form-textarea, > div > .form-select) .form-textarea,
+.form-group:has(> .form-input, > .form-textarea, > .form-select, > div > .form-input, > div > .form-textarea, > div > .form-select) .form-select {
+  padding: 13px 12px 7px 12px;
+  min-height: 42px;
+  border-radius: 6px;
+  background: #ffffff;
+  border: 1px solid var(--border-card);
+  color: var(--text-dark);
+  font-size: 0.84rem;
+  transition: all 0.15s ease;
+}
+
+.form-group:has(> .form-textarea, > div > .form-textarea) .form-textarea {
+  min-height: 90px;
+  padding-top: 20px;
+  resize: vertical;
+}
+
+/* Hide native placeholder when NOT focused to prevent collision with floating label */
+.form-group:has(> .form-input, > .form-textarea, > .form-select, > div > .form-input, > div > .form-textarea, > div > .form-select) .form-input:not(:focus)::placeholder,
+.form-group:has(> .form-input, > .form-textarea, > .form-select, > div > .form-input, > div > .form-textarea, > div > .form-select) .form-textarea:not(:focus)::placeholder {
+  color: transparent !important;
+  opacity: 0 !important;
+}
+
+/* Floating active state: on focus, filled (not placeholder-shown), date/time/select */
+.form-group:has(.form-input:focus) > .form-label,
+.form-group:has(.form-textarea:focus) > .form-label,
+.form-group:has(.form-select:focus) > .form-label,
+.form-group:has(.form-input:not(:placeholder-shown)) > .form-label,
+.form-group:has(.form-textarea:not(:placeholder-shown)) > .form-label,
+.form-group:has(input[type="date"]) > .form-label,
+.form-group:has(input[type="time"]) > .form-label,
+.form-group:has(select) > .form-label {
+  top: -8px !important;
+  left: 10px !important;
+  font-size: 0.70rem !important;
+  font-weight: 700 !important;
+  color: var(--primary-emerald, #0b5c46) !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 2px #ffffff !important;
+  z-index: 4 !important;
+}
+
+.form-group:has(.form-input:not(:focus):not(:placeholder-shown)) > .form-label,
+.form-group:has(.form-textarea:not(:focus):not(:placeholder-shown)) > .form-label {
+  color: #475569 !important;
 }
 
 .form-input, .form-textarea, .form-select {
@@ -1247,20 +1330,50 @@
 .login-card {
   position: relative;
   z-index: 1;
-  width: 100%;
-  max-width: 440px;
+  width: 480px;
+  max-width: 100%;
+  min-height: 480px;
+  aspect-ratio: 1 / 1;
   background: #ffffff;
   border: 1px solid var(--border-card);
-  border-radius: 14px;
-  padding: 34px 30px;
+  border-radius: 10px;
+  padding: 44px 40px;
   box-shadow: 
-    0 4px 6px -1px rgba(0, 0, 0, 0.03),
-    0 20px 35px -10px rgba(11, 92, 70, 0.08),
-    0 1px 2px rgba(0, 0, 0, 0.02);
+    0 10px 25px -5px rgba(11, 92, 70, 0.08),
+    0 25px 50px -12px rgba(0, 0, 0, 0.08),
+    0 1px 3px rgba(0, 0, 0, 0.02);
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  justify-content: center;
+  gap: 22px;
   animation: loginCardFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (max-width: 540px) {
+  .login-card {
+    width: 100%;
+    min-height: auto;
+    aspect-ratio: auto;
+    padding: 32px 24px;
+    border-radius: 8px;
+  }
+}
+
+.login-card .form-group .form-input {
+  min-height: 48px;
+  font-size: 0.92rem;
+  padding: 15px 14px 7px 14px;
+}
+
+.login-card .form-group > .form-label {
+  top: 14px;
+  font-size: 0.88rem;
+}
+
+.login-card .form-group:has(.form-input:focus) > .form-label,
+.login-card .form-group:has(.form-input:not(:placeholder-shown)) > .form-label {
+  top: -8px !important;
+  font-size: 0.74rem !important;
 }
 
 @keyframes loginCardFadeIn {
@@ -1280,7 +1393,7 @@
   align-items: center;
   text-align: center;
   gap: 10px;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .login-logo-box {
@@ -1297,7 +1410,7 @@
 }
 
 .login-title {
-  font-size: 1.4rem;
+  font-size: 1.7rem;
   font-weight: 800;
   color: var(--text-dark);
   letter-spacing: -0.02em;
@@ -1309,10 +1422,10 @@
 }
 
 .login-subtitle {
-  font-size: 0.8rem;
+  font-size: 0.88rem;
   color: #64748b;
   margin: 0;
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
 .spinner {

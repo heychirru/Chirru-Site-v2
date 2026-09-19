@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowUpRight, Github, FolderGit2 } from 'lucide-react'
+import { ArrowUpRight, FolderGit2, Github } from 'lucide-react'
+import { useMemo, useState } from 'react'
 
 function ProjectCardMedia({ project }) {
   const [imgError, setImgError] = useState(false)
@@ -30,12 +30,12 @@ function ProjectCardMedia({ project }) {
 }
 
 export default function Project({ projects = [], loading }) {
-  const [activeFilter, setActiveFilter] = useState('all')
+  const [activeFilter, setActiveFilter] = useState('featured')
 
   const filterOptions = useMemo(() => {
     return [
+      { id: 'featured', label: 'Featured Projects' },
       { id: 'all', label: 'All Projects' },
-      { id: 'featured', label: 'Featured Work' },
     ]
   }, [])
 
@@ -87,9 +87,9 @@ export default function Project({ projects = [], loading }) {
           </div>
         ) : filteredProjects.length === 0 ? (
           <div style={{ padding: '60px 20px', textAlign: 'center', background: 'var(--bg-surface)', borderRadius: 'var(--radius-xl)', border: '1px dashed var(--border-medium)', color: 'var(--text-muted)' }}>
-            No projects found in this view.
+            Server Offline. Projects Loading failed.
           </div>
-        ) : (
+        ) : ( 
           <div className="projects-grid">
             {filteredProjects.map((project, index) => {
               // Clean description if it's test characters

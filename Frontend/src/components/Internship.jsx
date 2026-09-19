@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Briefcase, Building, Calendar, MapPin, Sparkles } from 'lucide-react'
+import { Briefcase, Building, Calendar, MapPin } from 'lucide-react'
 
 export default function Internship({ items = [] }) {
   return (
@@ -34,9 +34,6 @@ export default function Internship({ items = [] }) {
               boxShadow: 'var(--shadow-sm)',
             }}
           >
-            <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 48, height: 48, borderRadius: '50%', background: 'var(--primary-subtle)', color: 'var(--primary-light)', marginBottom: 16 }}>
-              <Sparkles size={22} />
-            </div>
             <h3 style={{ fontFamily: 'var(--font-sans)', fontSize: '1.2rem', fontWeight: 700, marginBottom: 8, color: 'var(--text-primary)' }}>
               Open to New Opportunities
             </h3>

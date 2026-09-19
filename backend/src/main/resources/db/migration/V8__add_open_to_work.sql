@@ -1,0 +1,1 @@
+ALTER TABLE profile ADD COLUMN open_to_work BOOLEAN DEFAULT TRUE;

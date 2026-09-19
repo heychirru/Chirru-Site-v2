@@ -114,6 +114,7 @@ export default function Resumes() {
               <label className="form-label">Resume Title *</label>
               <input
                 className="form-input"
+                placeholder=" "
                 value={formData.title}
                 onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
                 required

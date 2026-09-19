@@ -1,115 +1,97 @@
 import { motion } from 'framer-motion'
-import { GraduationCap, Award, ArrowUpRight, Calendar, Landmark } from 'lucide-react'
+import { GraduationCap, Calendar, Landmark, BookOpen, Sparkles } from 'lucide-react'
 
-export default function Education({ items = [], certifications = [] }) {
+export default function Education({ items = [] }) {
   return (
     <section id="education" className="section">
       <div className="container">
         {/* Section Header */}
         <div className="section-header">
           <span className="eyebrow">
-            <GraduationCap size={14} /> Academic & Professional Growth
+            <GraduationCap size={14} /> Academic Journey
           </span>
           <h2 className="section-title">
-            Education & <span className="accent-highlight">Certifications</span>
+            Formal <span className="accent-highlight">Education</span>
           </h2>
           <p className="section-subtitle">
-            Formal qualifications, technical degrees, and verified professional credentials.
+            Academic background, degrees, and foundational engineering education.
           </p>
         </div>
 
-        <div className="edu-cert-grid">
-          {/* Left Column: Education */}
+        {items.length === 0 ? (
           <motion.div
-            className="edu-cert-column"
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.35 }}
+            className="edu-empty-card"
           >
-            <h3>
-              <GraduationCap size={20} color="var(--primary-light)" /> Formal Education
-            </h3>
-
-            <div className="edu-cert-stack">
-              {items.length === 0 ? (
-                <div className="edu-card" style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '30px 20px' }}>
-                  Education history will appear here once configured.
-                </div>
-              ) : (
-                items.map((item) => {
-                  let field = item.field
-                  if (field && field.toLowerCase().includes('computer science')) {
-                    field = 'Computer Science & Engineering'
-                  }
-                  return (
-                    <article className="edu-card" key={item.id}>
-                      <h4 className="edu-degree">{item.degree}</h4>
-                      <div className="edu-institution">
-                        <Landmark size={14} style={{ display: 'inline', marginRight: 5, verticalAlign: 'middle' }} />
-                        {item.institution}
-                        {field ? ` · ${field}` : ''}
-                      </div>
-                      {(item.startDate || item.endDate) && (
-                        <div className="edu-date">
-                          <Calendar size={13} style={{ display: 'inline', marginRight: 4, verticalAlign: 'middle' }} />
-                          {item.startDate || ''} — {item.endDate || 'Present'}
-                        </div>
-                      )}
-                      {item.description && (
-                        <p style={{ marginTop: 10, color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.6 }}>
-                          {item.description}
-                        </p>
-                      )}
-                    </article>
-                  )
-                })
-              )}
+            <div className="edu-empty-icon">
+              <Sparkles size={22} />
             </div>
+            <h3 className="edu-empty-title">Education History</h3>
+            <p className="edu-empty-subtitle">
+              Academic qualifications will appear here once configured in the CMS.
+            </p>
           </motion.div>
+        ) : (
+          <div className="edu-grid">
+            {items.map((item, index) => {
+              let field = item.field
+              if (field && field.toLowerCase().includes('computer science')) {
+                field = 'Computer Science & Engineering'
+              }
 
-          {/* Right Column: Certifications */}
-          <motion.div
-            className="edu-cert-column"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.35, delay: 0.1 }}
-          >
-            <h3>
-              <Award size={20} color="var(--accent-purple)" /> Certifications & Credentials
-            </h3>
+              const dateRange = (item.startDate || item.endDate)
+                ? `${item.startDate || ''} — ${item.endDate || 'Present'}`
+                : null
 
-            <div className="edu-cert-stack">
-              {certifications.length === 0 ? (
-                <div className="cert-card" style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '30px 20px' }}>
-                  Certifications will appear here once added.
-                </div>
-              ) : (
-                certifications.map((item) => (
-                  <article className="cert-card" key={item.id}>
-                    <h4 className="cert-name">{item.name}</h4>
-                    <div className="cert-issuer">
-                      {item.issuer || 'Official Issuer'}
-                      {item.issueDate ? ` · ${item.issueDate}` : ''}
+              return (
+                <motion.article
+                  className="edu-modern-card"
+                  key={item.id || index}
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: index * 0.1 }}
+                >
+                  <div className="edu-card-topbar">
+                    <div className="edu-icon-badge">
+                      <GraduationCap size={22} />
                     </div>
-                    {item.credentialUrl && (
-                      <a
-                        href={item.credentialUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="cert-verify-link"
-                      >
-                        Verify Credential <ArrowUpRight size={13} />
-                      </a>
+                    {dateRange && (
+                      <div className="edu-date-badge">
+                        <Calendar size={13} />
+                        <span>{dateRange}</span>
+                      </div>
                     )}
-                  </article>
-                ))
-              )}
-            </div>
-          </motion.div>
-        </div>
+                  </div>
+
+                  <div className="edu-card-content">
+                    <h3 className="edu-degree-title">{item.degree}</h3>
+
+                    <div className="edu-institution-row">
+                      <Landmark size={15} className="edu-institution-icon" />
+                      <span className="edu-institution-name">{item.institution}</span>
+                    </div>
+
+                    {field && (
+                      <div className="edu-field-tag">
+                        <BookOpen size={13} />
+                        <span>{field}</span>
+                      </div>
+                    )}
+
+                    {item.description && (
+                      <p className="edu-card-description">{item.description}</p>
+                    )}
+                  </div>
+                </motion.article>
+              )
+            })}
+          </div>
+        )}
       </div>
     </section>
   )
 }
+

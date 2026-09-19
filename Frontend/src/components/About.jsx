@@ -74,9 +74,6 @@ export default function About({ profile = {}, skills = [] }) {
               {bioText}
             </p>
 
-            <p className="bio-paragraph" style={{ fontSize: '0.94rem', color: 'var(--text-muted)' }}>
-              From designing relational database schemas to implementing secure JWT authentication protocols and building responsive web interfaces, I enjoy turning complex challenges into clean, structured software.
-            </p>
 
             <ul className="about-highlights-list">
               <li className="about-highlight-item">

@@ -133,6 +133,7 @@ export default function SocialLinks() {
               <label className="form-label">Display Label *</label>
               <input
                 className="form-input"
+                placeholder=" "
                 value={formData.label}
                 onChange={(e) => setFormData((prev) => ({ ...prev, label: e.target.value }))}
                 required
@@ -160,6 +161,7 @@ export default function SocialLinks() {
                 <input
                   className="form-input"
                   type="number"
+                  placeholder=" "
                   value={formData.displayOrder}
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, displayOrder: parseInt(e.target.value) || 0 }))

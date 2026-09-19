@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   ArrowRight,
   BadgeCheck,
@@ -31,6 +31,23 @@ export default function Dashboard() {
   const experienceQuery = useQuery({ queryKey: ['experience'], queryFn: adminApi.experience })
   const educationQuery = useQuery({ queryKey: ['education'], queryFn: adminApi.education })
   const certsQuery = useQuery({ queryKey: ['certifications'], queryFn: adminApi.certifications })
+
+  const qc = useQueryClient()
+  const [savingOpenToWork, setSavingOpenToWork] = useState(false)
+
+  const toggleOpenToWork = async () => {
+    if (profileQuery.isLoading) return
+    const currentProfile = profileQuery.data || {}
+    setSavingOpenToWork(true)
+    try {
+      await adminApi.saveProfile({ ...currentProfile, openToWork: !currentProfile.openToWork })
+      await qc.invalidateQueries({ queryKey: ['profile'] })
+    } catch (err) {
+      console.error('Failed to toggle openToWork:', err)
+    } finally {
+      setSavingOpenToWork(false)
+    }
+  }
 
   // Real-time ticking clock
   const [time, setTime] = useState(new Date())
@@ -108,7 +125,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="executive-hero-right">
+        <div className="executive-hero-right" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <div className="executive-clock-card">
             <div className="executive-clock-date">
               <span>📅</span>
@@ -118,6 +135,54 @@ export default function Dashboard() {
               <Clock size={16} />
               <span>{formattedTime}</span>
             </div>
+          </div>
+
+          <div
+            className="executive-clock-card"
+            style={{
+              padding: '12px 16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '16px',
+              opacity: savingOpenToWork ? 0.6 : 1,
+            }}
+          >
+            <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+              Available for Opportunities
+            </span>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={!!profile.openToWork}
+              onClick={toggleOpenToWork}
+              disabled={savingOpenToWork}
+              style={{
+                position: 'relative',
+                width: '44px',
+                height: '24px',
+                borderRadius: '12px',
+                border: 'none',
+                cursor: savingOpenToWork ? 'not-allowed' : 'pointer',
+                background: profile.openToWork ? 'var(--accent-green, #22c55e)' : 'var(--bg-elevated, #374151)',
+                transition: 'background 0.25s ease',
+                padding: 0,
+              }}
+            >
+              <span
+                style={{
+                  position: 'absolute',
+                  top: '2px',
+                  left: profile.openToWork ? '22px' : '2px',
+                  width: '20px',
+                  height: '20px',
+                  borderRadius: '50%',
+                  background: '#fff',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+                  transition: 'left 0.25s ease',
+                }}
+              />
+            </button>
           </div>
         </div>
       </div>

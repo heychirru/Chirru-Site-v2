@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Mail, Send, Copy, Check, ShieldCheck, Github, Linkedin, Globe, Loader2 } from 'lucide-react'
+import { Mail, Send, Copy, Check, ShieldCheck, Github, Linkedin, Instagram, Globe, Loader2 } from 'lucide-react'
 import { portfolioApi } from '../api'
 
 export default function Contact({ profile = {}, socialLinks = [], onShowToast }) {
@@ -9,6 +9,14 @@ export default function Contact({ profile = {}, socialLinks = [], onShowToast })
   const [busy, setBusy] = useState(false)
   const [copied, setCopied] = useState(false)
 
+  const github = socialLinks.find((s) => s.platform?.toLowerCase() === 'github')?.url || profile.githubUrl
+  const linkedin = socialLinks.find((s) => s.platform?.toLowerCase() === 'linkedin')?.url || profile.linkedinUrl
+  const instagram = socialLinks.find((s) => s.platform?.toLowerCase() === 'instagram')?.url || profile.instagramUrl
+  const xLink = socialLinks.find((s) => {
+    const p = s.platform?.toLowerCase()
+    const u = s.url?.toLowerCase() || ''
+    return p === 'twitter' || p === 'x' || u.includes('x.com') || u.includes('twitter.com')
+  })?.url || profile.twitterUrl || profile.xUrl
   const email = profile.email || 'contact@example.com'
 
   function handleChange(e) {
@@ -30,40 +38,34 @@ export default function Contact({ profile = {}, socialLinks = [], onShowToast })
 
     try {
       await portfolioApi.contact(form)
+      setStatus({ type: 'success', text: 'Thank you! Your message has been received.' })
       setForm({ name: '', email: '', subject: '', message: '' })
-      setStatus({
-        type: 'success',
-        text: 'Thank you! Your message has been safely delivered to my inbox.',
-      })
-      onShowToast?.('Message sent successfully!', 'success')
+      onShowToast?.('Message sent successfully! I will get back to you soon.', 'success')
     } catch (err) {
-      setStatus({
-        type: 'error',
-        text: err.message || 'Could not send message. Please try again or reach out directly.',
-      })
-      onShowToast?.(err.message || 'Failed to send message', 'error')
+      setStatus({ type: 'error', text: err.message || 'Failed to send message. Please try again or email directly.' })
+      onShowToast?.(err.message || 'Failed to send message. Please try again.', 'error')
     } finally {
       setBusy(false)
     }
   }
 
   return (
-    <section id="contact" className="section">
+    <section id="contact" className="section contact-section">
       <div className="container">
         {/* Section Header */}
         <div className="section-header">
           <span className="eyebrow">
-            <Mail size={14} /> Get In Touch
+            <Mail size={14} /> Get in Touch
           </span>
           <h2 className="section-title">
-            Let’s Build Something <span className="gradient-text">Exceptional</span>
+            Let's <span className="accent-highlight">Connect</span>
           </h2>
           <p className="section-subtitle">
-            Have a project in mind, career opportunity, or want to discuss modern software architecture? Send a message directly.
+            Have a project, engineering opportunity, or technical inquiry? Send a direct message or connect via professional channels.
           </p>
         </div>
 
-        <div className="contact-grid">
+       <div className="contact-grid">
           {/* Left: Contact Info Card */}
           <motion.div
             className="contact-info-card"
@@ -95,9 +97,6 @@ export default function Contact({ profile = {}, socialLinks = [], onShowToast })
                 </div>
               )}
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-muted)', fontSize: '0.84rem', marginTop: 6 }}>
-                <ShieldCheck size={16} color="var(--accent-emerald)" /> Messages are directly routed to the private portfolio inbox.
-              </div>
             </div>
 
             {/* Social Links on Contact */}
@@ -106,29 +105,47 @@ export default function Contact({ profile = {}, socialLinks = [], onShowToast })
                 Professional Networks
               </h4>
               <div className="hero-socials" style={{ marginTop: 4 }}>
-                {profile.githubUrl && (
-                  <a href={profile.githubUrl} target="_blank" rel="noreferrer" className="social-icon-btn" aria-label="GitHub">
+                {github && (
+                  <a href={github} target="_blank" rel="noreferrer" className="social-icon-btn" aria-label="GitHub">
                     <Github size={18} />
                   </a>
                 )}
-                {profile.linkedinUrl && (
-                  <a href={profile.linkedinUrl} target="_blank" rel="noreferrer" className="social-icon-btn" aria-label="LinkedIn">
+                {linkedin && (
+                  <a href={linkedin} target="_blank" rel="noreferrer" className="social-icon-btn" aria-label="LinkedIn">
                     <Linkedin size={18} />
                   </a>
                 )}
-                {socialLinks.map((s) => (
-                  <a
-                    key={s.id || s.url}
-                    href={s.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="social-icon-btn"
-                    aria-label={s.label || s.platform}
-                    title={s.label || s.platform}
-                  >
-                    <Globe size={18} />
+                {xLink && (
+                  <a href={xLink} target="_blank" rel="noreferrer" className="social-icon-btn" aria-label="X (Twitter)">
+                    <svg viewBox="0 0 24 24" width={16} height={16} fill="currentColor">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                    </svg>
                   </a>
-                ))}
+                )}
+                {instagram && (
+                  <a href={instagram} target="_blank" rel="noreferrer" className="social-icon-btn" aria-label="Instagram">
+                    <Instagram size={18} />
+                  </a>
+                )}
+                {socialLinks
+                  .filter((s) => {
+                    const p = s.platform?.toLowerCase()
+                    const u = s.url?.toLowerCase() || ''
+                    return !['github', 'linkedin', 'instagram', 'twitter', 'x'].includes(p) && !u.includes('x.com') && !u.includes('twitter.com')
+                  })
+                  .map((s) => (
+                    <a
+                      key={s.id || s.url}
+                      href={s.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="social-icon-btn"
+                      aria-label={s.label || s.platform}
+                      title={s.label || s.platform}
+                    >
+                      <Globe size={18} />
+                    </a>
+                  ))}
               </div>
             </div>
           </motion.div>
@@ -142,67 +159,67 @@ export default function Contact({ profile = {}, socialLinks = [], onShowToast })
             transition={{ duration: 0.4, delay: 0.1 }}
           >
             <form className="contact-form" onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label className="form-label" htmlFor="contact-name">
-                  Your Name *
-                </label>
+              <div className="floating-form-group">
                 <input
                   id="contact-name"
                   name="name"
                   type="text"
                   required
-                  className="form-input"
-                  placeholder="e.g. Alex Morgan"
+                  className="floating-input"
+                  placeholder=" "
                   value={form.name}
                   onChange={handleChange}
                 />
+                <label className="floating-label" htmlFor="contact-name">
+                  Your Name 
+                </label>
               </div>
 
-              <div className="form-group">
-                <label className="form-label" htmlFor="contact-email">
-                  Email Address *
-                </label>
+              <div className="floating-form-group">
                 <input
                   id="contact-email"
                   name="email"
                   type="email"
                   required
-                  className="form-input"
-                  placeholder="name@company.com"
+                  className="floating-input"
+                  placeholder=" "
                   value={form.email}
                   onChange={handleChange}
                 />
+                <label className="floating-label" htmlFor="contact-email">
+                  Email Address 
+                </label>
               </div>
 
-              <div className="form-group">
-                <label className="form-label" htmlFor="contact-subject">
-                  Subject
-                </label>
+              <div className="floating-form-group">
                 <input
                   id="contact-subject"
                   name="subject"
                   type="text"
-                  className="form-input"
-                  placeholder="Project inquiry / Opportunity"
+                  className="floating-input"
+                  placeholder=" "
                   value={form.subject}
                   onChange={handleChange}
                 />
+                <label className="floating-label" htmlFor="contact-subject">
+                  Subject
+                </label>
               </div>
 
-              <div className="form-group">
-                <label className="form-label" htmlFor="contact-message">
-                  Message *
-                </label>
+              <div className="floating-form-group">
                 <textarea
                   id="contact-message"
                   name="message"
                   required
                   rows={5}
-                  className="form-textarea"
-                  placeholder="Write your message here..."
+                  className="floating-textarea"
+                  placeholder=" "
                   value={form.message}
                   onChange={handleChange}
                 />
+                <label className="floating-label" htmlFor="contact-message">
+                  Message 
+                </label>
               </div>
 
               {status.text && (

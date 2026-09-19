@@ -27,6 +27,7 @@ public class Profile {
     @Column(name = "resume_public_id", length = 500) private String resumePublicId;
     @Column(name = "image_url", length = 1000) private String imageUrl;
     @Column(name = "image_public_id", length = 500) private String imagePublicId;
+    @Column(name = "open_to_work") private Boolean openToWork = true;
     @Column(name = "created_at", nullable = false, updatable = false) private Instant createdAt;
     @Column(name = "updated_at", nullable = false) private Instant updatedAt;
 

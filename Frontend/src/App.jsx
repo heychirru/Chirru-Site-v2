@@ -61,42 +61,27 @@ export default function App() {
   const skillsQuery = useQuery({ queryKey: ['skills'], queryFn: portfolioApi.skills })
   const experienceQuery = useQuery({ queryKey: ['experience'], queryFn: portfolioApi.experience })
   const educationQuery = useQuery({ queryKey: ['education'], queryFn: portfolioApi.education })
-  const certificationsQuery = useQuery({ queryKey: ['certifications'], queryFn: portfolioApi.certifications })
+
   const socialLinksQuery = useQuery({ queryKey: ['socialLinks'], queryFn: portfolioApi.socialLinks })
-  const seoQuery = useQuery({ queryKey: ['seo', 'home'], queryFn: () => portfolioApi.seo('home') })
 
   // Track initial page view analytics event
   useEffect(() => {
     portfolioApi.trackEvent('page_view', { path: '/' })
   }, [])
 
-  // Apply SEO metadata dynamically
+  // Set document title from profile name
   useEffect(() => {
-    const seo = seoQuery.data
-    const profile = profileQuery.data
-    if (seo?.title) {
-      document.title = seo.title
-    } else if (profile?.name) {
-      document.title = `${profile.name} · Software Developer Portfolio`
+    if (profileQuery.data?.name) {
+      document.title = profileQuery.data.name
     }
-
-    if (seo?.description) {
-      let metaDesc = document.querySelector('meta[name="description"]')
-      if (!metaDesc) {
-        metaDesc = document.createElement('meta')
-        metaDesc.name = 'description'
-        document.head.appendChild(metaDesc)
-      }
-      metaDesc.content = seo.description
-    }
-  }, [seoQuery.data, profileQuery.data])
+  }, [profileQuery.data])
 
   const profile = profileQuery.data || {}
   const projects = projectsQuery.data || []
   const skills = skillsQuery.data || []
   const experience = experienceQuery.data || []
   const education = educationQuery.data || []
-  const certifications = certificationsQuery.data || []
+
   const socialLinks = socialLinksQuery.data || []
 
   return (
@@ -138,7 +123,7 @@ export default function App() {
           loading={projectsQuery.isLoading}
         />
         <Internship items={experience} />
-        <Education items={education} certifications={certifications} />
+        <Education items={education} />
         <Contact profile={profile} socialLinks={socialLinks} onShowToast={showToast} />
       </main>
 

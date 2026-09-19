@@ -43,34 +43,12 @@ export default function Login() {
 
       <form className="login-card" onSubmit={handleSubmit}>
         <div className="login-brand">
-          <div className="login-logo-box">
-            <Sparkles size={26} />
-          </div>
           <div>
-            <div
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 5,
-                background: '#e6f7f0',
-                color: '#0b5c46',
-                fontSize: '0.66rem',
-                fontWeight: 700,
-                padding: '3px 8px',
-                borderRadius: '9999px',
-                letterSpacing: '0.04em',
-                textTransform: 'uppercase',
-                marginBottom: '8px',
-              }}
-            >
-              <ShieldCheck size={13} />
-              <span>Executive Access</span>
-            </div>
             <h2 className="login-title">
-              chirru<span>.</span> admin
+              <span>CHIRRU</span>
             </h2>
             <p className="login-subtitle">
-              Enter your credentials to access the portfolio CMS
+              Enter your credentials to access the portfolio Dashboard
             </p>
           </div>
         </div>
@@ -98,7 +76,6 @@ export default function Login() {
             onChange={(e) => setEmail(e.target.value)}
             type="email"
             placeholder="EMAIL_ADDRESS"
-            autoComplete="username"
             required
           />
         </div>
@@ -116,8 +93,7 @@ export default function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               type={showPassword ? 'text' : 'password'}
-              placeholder="••••••••••••"
-              autoComplete="current-password"
+              placeholder="Enter Password"
               style={{ paddingRight: '42px' }}
               required
             />
@@ -146,7 +122,7 @@ export default function Login() {
           type="submit"
           className="btn btn-primary"
           disabled={busy}
-          style={{ width: '100%', padding: '11px', marginTop: '4px', fontSize: '0.88rem' }}
+          style={{ width: '100%', padding: '13px', marginTop: '6px', fontSize: '0.94rem', fontWeight: 600, borderRadius: '8px' }}
         >
           {busy ? (
             <>
@@ -168,7 +144,7 @@ export default function Login() {
           zIndex: 1,
         }}
       >
-        © 2026 Chirru Admin· All rights reserved
+        © {new Date().getFullYear()} Chiranjit Das  All rights reserved.
       </div>
     </div>
   )

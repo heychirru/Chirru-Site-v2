@@ -45,7 +45,7 @@ export default function Navbar({ onMenu, theme, onToggleTheme }) {
   }
 
   return (
-    <header className="navbar-wrapper">
+    <header className={`navbar-wrapper ${scrolled ? 'scrolled' : ''}`}>
       <nav className={`navbar ${scrolled ? 'scrolled' : ''}`} aria-label="Main Navigation">
         {/* Brand */}
         <a className="nav-brand" href="#home">

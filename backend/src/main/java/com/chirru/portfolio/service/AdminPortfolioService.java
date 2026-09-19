@@ -48,6 +48,7 @@ public class AdminPortfolioService {
         p.setLinkedinUrl(r.linkedinUrl());
         p.setResumeUrl(r.resumeUrl());
         p.setImageUrl(r.imageUrl());
+        p.setOpenToWork(r.openToWork() != null ? r.openToWork() : true);
         return profileRepository.save(p);
     }
 
