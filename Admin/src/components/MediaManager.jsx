@@ -11,6 +11,7 @@ import {
   Sparkles,
 } from 'lucide-react'
 import CloudinaryUpload from './CloudinaryUpload'
+import { getImageUrl } from '../utils/imageUtils'
 
 const RECENT_MEDIA_KEY = 'chirru_recent_cloudinary_media'
 
@@ -230,7 +231,7 @@ export default function MediaManager() {
                     </div>
                   ) : (
                     <img
-                      src={item.url}
+                      src={getImageUrl(item.url)}
                       alt={item.originalFilename}
                       style={{
                         width: 44,
@@ -293,7 +294,7 @@ export default function MediaManager() {
                       )}
                     </button>
                     <a
-                      href={item.url}
+                      href={getImageUrl(item.url)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="btn btn-secondary btn-sm btn-icon"

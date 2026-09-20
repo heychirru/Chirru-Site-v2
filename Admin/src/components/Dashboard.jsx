@@ -21,6 +21,7 @@ import {
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { adminApi } from '../api'
+import { getImageUrl } from '../utils/imageUtils'
 
 export default function Dashboard() {
   const dashQuery = useQuery({ queryKey: ['dashboard'], queryFn: adminApi.dashboard })
@@ -103,7 +104,7 @@ export default function Dashboard() {
         <div className="executive-hero-left">
           <div className="executive-hero-avatar">
             {profile.imageUrl ? (
-              <img src={profile.imageUrl} alt={name} />
+              <img src={getImageUrl(profile.imageUrl)} alt={name} />
             ) : (
               name.charAt(0).toUpperCase()
             )}

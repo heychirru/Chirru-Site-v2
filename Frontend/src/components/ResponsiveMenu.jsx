@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { X, Sun, Moon, FileText, ArrowRight, Github, Linkedin, Mail, Instagram, Globe } from 'lucide-react'
 import { portfolioApi } from '../api'
 
@@ -11,10 +12,26 @@ const navLinks = [
 ]
 
 export default function ResponsiveMenu({ open, onClose, theme, onToggleTheme, socialLinks = [] }) {
+  const navigate = useNavigate()
+  const location = useLocation()
+
   function handleNavClick(href) {
     onClose()
-    const el = document.querySelector(href)
-    el?.scrollIntoView({ behavior: 'smooth' })
+    if (location.pathname === '/') {
+      const el = document.querySelector(href)
+      el?.scrollIntoView({ behavior: 'smooth' })
+    } else {
+      navigate(`/${href}`)
+    }
+  }
+
+  function handleBrandClick() {
+    onClose()
+    if (location.pathname === '/') {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    } else {
+      navigate('/')
+    }
   }
 
   function handleResumeClick() {
@@ -42,9 +59,14 @@ export default function ResponsiveMenu({ open, onClose, theme, onToggleTheme, so
           >
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span className="nav-brand">
+              <button
+                type="button"
+                className="nav-brand"
+                onClick={handleBrandClick}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+              >
                 chirru<span className="nav-brand-dot" />
-              </span>
+              </button>
               <button className="modal-close-btn" onClick={onClose} aria-label="Close menu">
                 <X size={18} />
               </button>

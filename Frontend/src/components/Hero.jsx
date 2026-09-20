@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { ArrowUpRight, Code2, FileText, Github, Globe, Linkedin, Instagram, Mail, MapPin, Send, User } from 'lucide-react'
 import { portfolioApi } from '../api'
+import { getImageUrl } from '../utils/imageUtils'
 
 export default function Hero({ profile = {}, socialLinks = [], projectCount = 0, skillCount = 0 }) {
   function handleResumeClick() {
@@ -43,7 +44,14 @@ export default function Hero({ profile = {}, socialLinks = [], projectCount = 0,
             <div className="hero-landscape-profile">
               <div className="avatar-wrapper hero-avatar-landscape">
                 {profile.imageUrl ? (
-                  <img src={profile.imageUrl} alt={profile.name || 'Chiranjit'} className="avatar-img" />
+                  <img
+                    src={getImageUrl(profile.imageUrl)}
+                    alt={`${profile.name || 'Chiranjit Das'} - Java & Backend Software Engineer`}
+                    className="avatar-img"
+                    loading="eager"
+                    fetchPriority="high"
+                    decoding="async"
+                  />
                 ) : (
                   <div className="avatar-fallback"><User size={60} /></div>
                 )}

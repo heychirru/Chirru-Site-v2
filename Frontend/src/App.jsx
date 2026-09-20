@@ -1,22 +1,27 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { portfolioApi } from './api'
 import Navbar from './components/Navbar'
 import ResponsiveMenu from './components/ResponsiveMenu'
-import Hero from './components/Hero'
-import About from './components/About'
-import Project from './components/Project'
-import Internship from './components/Internship'
-import Education from './components/Education'
-import Contact from './components/Contact'
 import Footer from './components/Footer'
 import Toast from './components/Toast'
+
+// Code-split pages for optimized bundle size and fast LCP
+const Home = lazy(() => import('./pages/Home'))
+const AboutPage = lazy(() => import('./pages/AboutPage'))
+const ProjectsPage = lazy(() => import('./pages/ProjectsPage'))
+const ProjectDetailsPage = lazy(() => import('./pages/ProjectDetailsPage'))
+const ExperiencePage = lazy(() => import('./pages/ExperiencePage'))
+const ContactPage = lazy(() => import('./pages/ContactPage'))
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [toasts, setToasts] = useState([])
+  const location = useLocation()
 
-  // Theme state: default light (Neumorphic Soft-Tech) with persistence
+  // Theme state: default light with persistence
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('chirru_theme') || 'light'
   })
@@ -61,27 +66,23 @@ export default function App() {
   const skillsQuery = useQuery({ queryKey: ['skills'], queryFn: portfolioApi.skills })
   const experienceQuery = useQuery({ queryKey: ['experience'], queryFn: portfolioApi.experience })
   const educationQuery = useQuery({ queryKey: ['education'], queryFn: portfolioApi.education })
-
   const socialLinksQuery = useQuery({ queryKey: ['socialLinks'], queryFn: portfolioApi.socialLinks })
 
-  // Track initial page view analytics event
+  // Track page view telemetry & scroll management on route changes
   useEffect(() => {
-    portfolioApi.trackEvent('page_view', { path: '/' })
-  }, [])
+    portfolioApi.trackEvent('page_view', { path: location.pathname })
 
-  // Set document title from profile name
-  useEffect(() => {
-    if (profileQuery.data?.name) {
-      document.title = profileQuery.data.name
+    // If no hash in URL, scroll to top on navigation
+    if (!location.hash) {
+      window.scrollTo(0, 0)
     }
-  }, [profileQuery.data])
+  }, [location.pathname, location.hash])
 
   const profile = profileQuery.data || {}
   const projects = projectsQuery.data || []
   const skills = skillsQuery.data || []
   const experience = experienceQuery.data || []
   const education = educationQuery.data || []
-
   const socialLinks = socialLinksQuery.data || []
 
   return (
@@ -109,23 +110,53 @@ export default function App() {
         socialLinks={socialLinks}
       />
 
-      {/* Main Content Sections */}
-      <main>
-        <Hero
-          profile={profile}
-          socialLinks={socialLinks}
-          projectCount={projects.length}
-          skillCount={skills.length}
-        />
-        <About profile={profile} skills={skills} />
-        <Project
-          projects={projects}
-          loading={projectsQuery.isLoading}
-        />
-        <Internship items={experience} />
-        <Education items={education} />
-        <Contact profile={profile} socialLinks={socialLinks} onShowToast={showToast} />
-      </main>
+      {/* Main Routed Content */}
+      <Suspense
+        fallback={
+          <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
+            Loading...
+          </div>
+        }
+      >
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <Home
+                profile={profile}
+                projects={projects}
+                skills={skills}
+                experience={experience}
+                education={education}
+                socialLinks={socialLinks}
+                projectsLoading={projectsQuery.isLoading}
+                onShowToast={showToast}
+              />
+            }
+          />
+          <Route
+            path="/about"
+            element={<AboutPage profile={profile} skills={skills} />}
+          />
+          <Route
+            path="/projects"
+            element={<ProjectsPage projects={projects} loading={projectsQuery.isLoading} />}
+          />
+          <Route
+            path="/projects/:slug"
+            element={<ProjectDetailsPage projects={projects} loading={projectsQuery.isLoading} />}
+          />
+          <Route
+            path="/experience"
+            element={<ExperiencePage experience={experience} education={education} />}
+          />
+          <Route
+            path="/contact"
+            element={<ContactPage profile={profile} socialLinks={socialLinks} onShowToast={showToast} />}
+          />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Suspense>
 
       {/* Footer */}
       <Footer profile={profile} socialLinks={socialLinks} />
@@ -134,3 +165,4 @@ export default function App() {
     </div>
   )
 }
+

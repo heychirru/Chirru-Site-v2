@@ -1,17 +1,8 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import {
-  Check,
-  Download,
-  ExternalLink,
-  FileCheck,
-  FileText,
-  Plus,
-  Radio,
-  Star,
-  Trash2,
-} from 'lucide-react'
+import { Download, FileCheck, FileText, Plus, Star, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { adminApi } from '../api'
+import { getImageUrl } from '../utils/imageUtils'
 import CloudinaryUpload from './CloudinaryUpload'
 
 export default function Resumes() {
@@ -246,7 +237,7 @@ export default function Resumes() {
                       </button>
                     )}
                     <a
-                      href={item.url}
+                      href={getImageUrl(item.url)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="btn btn-secondary btn-sm btn-icon"

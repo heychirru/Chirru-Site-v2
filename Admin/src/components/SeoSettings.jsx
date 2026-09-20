@@ -9,6 +9,7 @@ import {
 import { useEffect, useState } from 'react'
 import { adminApi } from '../api'
 import CloudinaryUpload from './CloudinaryUpload'
+import { getImageUrl } from '../utils/imageUtils'
 
 const PAGES = [
   { id: 'home', label: 'Home Page' },
@@ -242,7 +243,7 @@ export default function SeoSettings() {
 
             <div className="og-preview-card">
               {formData.ogImageUrl ? (
-                <img src={formData.ogImageUrl} alt="Social Share Card" className="og-image-preview" />
+                <img src={getImageUrl(formData.ogImageUrl)} alt="Social Share Card" className="og-image-preview" />
               ) : (
                 <div className="og-placeholder">
                   <Globe size={32} color="var(--text-tertiary)" />

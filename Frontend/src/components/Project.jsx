@@ -1,6 +1,9 @@
 import { motion } from 'framer-motion'
-import { ArrowUpRight, FolderGit2, Github } from 'lucide-react'
+import { ArrowUpRight, FolderGit2, Github, Eye } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { getImageUrl } from '../utils/imageUtils'
+import { toProjectSlug } from '../utils/slugUtils'
 
 function ProjectCardMedia({ project }) {
   const [imgError, setImgError] = useState(false)
@@ -10,10 +13,11 @@ function ProjectCardMedia({ project }) {
     <div className="project-media-wrapper">
       {hasValidImage ? (
         <img
-          src={project.imageUrl}
-          alt={project.title}
+          src={getImageUrl(project.imageUrl)}
+          alt={`Thumbnail preview of ${project.title} project`}
           className="project-thumbnail"
           loading="lazy"
+          decoding="async"
           onError={() => setImgError(true)}
         />
       ) : (
@@ -113,7 +117,13 @@ export default function Project({ projects = [], loading }) {
                   {/* Card Body */}
                   <div className="project-card-body">
                     <h3 className="project-card-title">
-                      {project.title}
+                      <Link
+                        to={`/projects/${toProjectSlug(project.title)}`}
+                        style={{ color: 'inherit', textDecoration: 'none' }}
+                        aria-label={`View ${project.title} project details`}
+                      >
+                        {project.title}
+                      </Link>
                     </h3>
                     <p className="project-card-desc">{desc}</p>
 
@@ -128,16 +138,23 @@ export default function Project({ projects = [], loading }) {
                       </div>
                     )}
 
-                    {/* Card Footer with Live and Code Links */}
+                    {/* Card Footer with Details, Live and Code Links */}
                     <div className="project-card-footer">
                       <div className="project-action-links">
+                        <Link
+                          to={`/projects/${toProjectSlug(project.title)}`}
+                          className="project-action-link"
+                          aria-label={`View ${project.title} architecture and details`}
+                        >
+                          <FolderGit2 size={15} /> Details
+                        </Link>
                         {project.liveUrl && (
                           <a
                             href={project.liveUrl}
                             target="_blank"
                             rel="noreferrer"
                             className="project-action-link"
-                            aria-label="Visit live demo"
+                            aria-label={`Visit ${project.title} live demo`}
                           >
                             <ArrowUpRight size={15} /> Live Demo
                           </a>
@@ -148,7 +165,7 @@ export default function Project({ projects = [], loading }) {
                             target="_blank"
                             rel="noreferrer"
                             className="project-action-link"
-                            aria-label="View source code on GitHub"
+                            aria-label={`View ${project.title} source code on GitHub`}
                           >
                             <Github size={15} /> Code
                           </a>

@@ -16,6 +16,7 @@ import {
 import { useState } from 'react'
 import { adminApi } from '../api'
 import CloudinaryUpload from './CloudinaryUpload'
+import { getImageUrl } from '../utils/imageUtils'
 
 export default function Projects() {
   const qc = useQueryClient()
@@ -427,7 +428,7 @@ export default function Projects() {
                       }}
                     >
                       <img
-                        src={project.imageUrl}
+                        src={getImageUrl(project.imageUrl)}
                         alt=""
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       />

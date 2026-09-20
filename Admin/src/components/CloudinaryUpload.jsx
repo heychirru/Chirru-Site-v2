@@ -1,17 +1,7 @@
-import {
-  AlertCircle,
-  Check,
-  Copy,
-  ExternalLink,
-  FileText,
-  Image as ImageIcon,
-  Link2,
-  Trash2,
-  UploadCloud,
-  X,
-} from 'lucide-react'
+import { AlertCircle, Check, Copy, ExternalLink, FileText, Image as ImageIcon, Link2, Trash2, UploadCloud, X } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { adminApi } from '../api'
+import { getImageUrl } from '../utils/imageUtils'
 
 export default function CloudinaryUpload({
   label = 'Upload File',
@@ -141,7 +131,7 @@ export default function CloudinaryUpload({
               {!isDocument ? (
                 <div className="cloudinary-img-thumb">
                   <img
-                    src={value}
+                    src={getImageUrl(value)}
                     alt="Uploaded preview"
                     onError={(e) => {
                       e.currentTarget.style.display = 'none'
@@ -166,7 +156,7 @@ export default function CloudinaryUpload({
 
               <div className="cloudinary-preview-actions">
                 <a
-                  href={value}
+                  href={getImageUrl(value)}
                   target="_blank"
                   rel="noreferrer"
                   className="btn btn-secondary btn-sm btn-icon"
@@ -195,9 +185,8 @@ export default function CloudinaryUpload({
           ) : (
             /* Drag and Drop Upload Zone */
             <div
-              className={`cloudinary-dropzone ${isDragOver ? 'dragover' : ''} ${
-                uploading ? 'uploading' : ''
-              }`}
+              className={`cloudinary-dropzone ${isDragOver ? 'dragover' : ''} ${uploading ? 'uploading' : ''
+                }`}
               onDragOver={(e) => {
                 e.preventDefault()
                 setIsDragOver(true)
