@@ -38,7 +38,7 @@ export default function Contact({ profile = {}, socialLinks = [], onShowToast })
 
     try {
       await portfolioApi.contact(form)
-      setStatus({ type: 'success', text: 'Thank you! Your message has been received.' })
+      setStatus({ type: 'success', text: 'Thank you! Message sent successfully!' })
       setForm({ name: '', email: '', subject: '', message: '' })
       onShowToast?.('Message sent successfully! I will get back to you soon.', 'success')
     } catch (err) {
