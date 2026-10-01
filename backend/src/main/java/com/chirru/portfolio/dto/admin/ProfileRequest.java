@@ -14,6 +14,8 @@ public record ProfileRequest(
         @Size(max = 500) String githubUrl,
         @Size(max = 500) String linkedinUrl,
         @Size(max = 500) String resumeUrl,
+        @Size(max = 500) String resumePublicId,
         @Size(max = 1000) String imageUrl,
+        @Size(max = 500) String imagePublicId,
         Boolean openToWork
 ) {}

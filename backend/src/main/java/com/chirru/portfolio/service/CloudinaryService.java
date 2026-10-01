@@ -42,7 +42,17 @@ public class CloudinaryService {
 
         long timestamp = Instant.now().getEpochSecond();
         String folderPath = "chirru-portfolio/" + folder.path();
-        String signature = sha1("folder=" + folderPath + "&timestamp=" + timestamp + apiSecret);
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null || originalFilename.isBlank()) {
+            throw new IllegalArgumentException("Original filename is required");
+        }
+
+        String signature = sha1(
+                "folder=" + folderPath
+                        + "&timestamp=" + timestamp
+                        + "&unique_filename=false"
+                        + "&use_filename=true"
+                        + apiSecret);
 
         ByteArrayResource resource = new ByteArrayResource(read(file)) {
             @Override public String getFilename() { return file.getOriginalFilename(); }
@@ -52,6 +62,8 @@ public class CloudinaryService {
         body.add("api_key", apiKey);
         body.add("timestamp", timestamp);
         body.add("folder", folderPath);
+        body.add("use_filename", "true");
+        body.add("unique_filename", "false");
         body.add("signature", signature);
 
         Map<?, ?> result = restClient.post()

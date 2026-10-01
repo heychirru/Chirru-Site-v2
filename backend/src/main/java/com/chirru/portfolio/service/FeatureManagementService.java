@@ -60,9 +60,21 @@ public class FeatureManagementService {
     }
 
     public Map<String, Object> seo(String pageKey) {
-        return jdbc.queryForMap(
+        List<Map<String, Object>> rows = jdbc.queryForList(
                 "SELECT page_key,title,description,keywords,canonical_url,og_image_url,no_index,updated_at FROM seo_settings WHERE page_key=?",
                 pageKey);
+        if (!rows.isEmpty()) {
+            return rows.get(0);
+        }
+        return Map.of(
+                "page_key", pageKey,
+                "title", "Chiranjit Das",
+                "description", "Official portfolio of Chiranjit Das, Java & Backend Software Engineer.",
+                "keywords", "Java, Spring Boot, Backend, PostgreSQL, REST APIs",
+                "canonical_url", "/" + ("home".equalsIgnoreCase(pageKey) ? "" : pageKey),
+                "og_image_url", "/og-image.jpg",
+                "no_index", false
+        );
     }
 
     @Transactional
@@ -119,11 +131,31 @@ public class FeatureManagementService {
         return jdbc.queryForList("SELECT * FROM media_assets WHERE folder=? ORDER BY created_at DESC", folder);
     }
 
-    public void saveMedia(String folder, String resourceType, String publicId, String url, String filename, String mime,
+    public java.util.Optional<MediaReplacement> findMediaForReplacement(String folder, String filename) {
+        String sql;
+        Object[] args;
+        if ("profile".equalsIgnoreCase(folder) || "resume".equalsIgnoreCase(folder)) {
+            sql = "SELECT id, public_id, resource_type FROM media_assets WHERE folder=? ORDER BY created_at DESC LIMIT 1";
+            args = new Object[] { folder };
+        } else {
+            sql = "SELECT id, public_id, resource_type FROM media_assets WHERE folder=? AND original_filename=? ORDER BY created_at DESC LIMIT 1";
+            args = new Object[] { folder, filename };
+        }
+        return jdbc.query(sql, ps -> {
+            for (int i = 0; i < args.length; i++) ps.setObject(i + 1, args[i]);
+        }, rs -> rs.next()
+                ? java.util.Optional.of(new MediaReplacement(rs.getLong("id"), rs.getString("public_id"), rs.getString("resource_type")))
+                : java.util.Optional.empty());
+    }
+
+    public record MediaReplacement(long id, String publicId, String resourceType) {}
+
+    public long saveMedia(String folder, String resourceType, String publicId, String url, String filename, String mime,
             Long bytes, Integer width, Integer height) {
         jdbc.update(
                 "INSERT INTO media_assets(folder,resource_type,public_id,url,original_filename,mime_type,bytes,width,height) VALUES (?,?,?,?,?,?,?,?,?) ON CONFLICT(public_id) DO UPDATE SET url=EXCLUDED.url,original_filename=EXCLUDED.original_filename,mime_type=EXCLUDED.mime_type,bytes=EXCLUDED.bytes,width=EXCLUDED.width,height=EXCLUDED.height",
                 folder, resourceType, publicId, url, filename, mime, bytes, width, height);
+        return jdbc.queryForObject("SELECT id FROM media_assets WHERE public_id=?", Long.class, publicId);
     }
 
     public void deleteMedia(String publicId) {

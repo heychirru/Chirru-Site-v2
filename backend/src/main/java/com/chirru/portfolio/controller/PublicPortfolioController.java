@@ -3,6 +3,7 @@ package com.chirru.portfolio.controller;
 import com.chirru.portfolio.entity.*;
 import com.chirru.portfolio.repository.*;
 import com.chirru.portfolio.service.FeatureManagementService;
+import com.chirru.portfolio.service.MediaService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -23,15 +24,26 @@ public class PublicPortfolioController {
     private final CertificationRepository certificationRepository;
     private final MessageRepository messageRepository;
     private final FeatureManagementService featureManagementService;
+    private final MediaService mediaService;
 
-    public PublicPortfolioController(ProfileRepository profileRepository, ProjectRepository projectRepository, SkillRepository skillRepository, ExperienceRepository experienceRepository, EducationRepository educationRepository, CertificationRepository certificationRepository, MessageRepository messageRepository, FeatureManagementService featureManagementService) {
+    public PublicPortfolioController(ProfileRepository profileRepository, ProjectRepository projectRepository, SkillRepository skillRepository, ExperienceRepository experienceRepository, EducationRepository educationRepository, CertificationRepository certificationRepository, MessageRepository messageRepository, FeatureManagementService featureManagementService, MediaService mediaService) {
         this.profileRepository = profileRepository; this.projectRepository = projectRepository; this.skillRepository = skillRepository;
         this.experienceRepository = experienceRepository; this.educationRepository = educationRepository; this.certificationRepository = certificationRepository;
-        this.messageRepository = messageRepository; this.featureManagementService = featureManagementService;
+        this.messageRepository = messageRepository; this.featureManagementService = featureManagementService; this.mediaService = mediaService;
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<Profile> profile() { return profileRepository.findAll().stream().findFirst().map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build()); }
+    public ResponseEntity<ProfileSummary> profile() {
+        return profileRepository.findAll().stream().findFirst()
+                .map(p -> {
+                    String imageUrl = mediaService.resolveMediaUrl(p.getImagePublicId(), p.getImageUrl());
+                    String resumeUrl = "/api/v2/portfolio/resume";
+                    return ResponseEntity.ok(new ProfileSummary(p.getId(), p.getName(), p.getHeadline(), p.getBio(), p.getEmail(), p.getLocation(),
+                            p.getGithubUrl(), p.getLinkedinUrl(), resumeUrl,
+                            imageUrl, p.getOpenToWork()));
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
 
     @GetMapping("/projects")
     public List<ProjectSummary> projects(@RequestParam(required = false, defaultValue = "false") boolean featured) {
@@ -39,9 +51,23 @@ public class PublicPortfolioController {
         return projects.stream().map(this::toProjectSummary).toList();
     }
 
-    @GetMapping("/projects/{id}")
-    public ResponseEntity<ProjectSummary> project(@PathVariable Long id) {
-        return projectRepository.findById(id).map(project -> ResponseEntity.ok(toProjectSummary(project))).orElseGet(() -> ResponseEntity.notFound().build());
+    @GetMapping("/projects/{identifier}")
+    public ResponseEntity<ProjectSummary> project(@PathVariable String identifier) {
+        if (identifier == null || identifier.isBlank()) return ResponseEntity.notFound().build();
+        try {
+            Long id = Long.valueOf(identifier.trim());
+            return projectRepository.findById(id).map(project -> ResponseEntity.ok(toProjectSummary(project))).orElseGet(() -> ResponseEntity.notFound().build());
+        } catch (NumberFormatException ignored) {
+            String cleanSlug = identifier.trim().toLowerCase().replaceAll("[^a-z0-9]+", "-").replaceAll("^-+|-+$", "");
+            return projectRepository.findAll().stream()
+                    .filter(p -> {
+                        String titleSlug = p.getTitle().toLowerCase().replaceAll("[^a-z0-9]+", "-").replaceAll("^-+|-+$", "");
+                        return titleSlug.equals(cleanSlug) || p.getTitle().equalsIgnoreCase(identifier.trim());
+                    })
+                    .findFirst()
+                    .map(project -> ResponseEntity.ok(toProjectSummary(project)))
+                    .orElseGet(() -> ResponseEntity.notFound().build());
+        }
     }
 
     @GetMapping("/skills")
@@ -63,9 +89,11 @@ public class PublicPortfolioController {
     private ProjectSummary toProjectSummary(Project project) {
         List<SkillSummary> skills = project.getSkills().stream().map(skill -> new SkillSummary(skill.getId(), skill.getName(), skill.getCategory(), skill.getIcon())).toList();
         List<Map<String,Object>> technologies = featureManagementService.projectTechnologies(project.getId());
-        return new ProjectSummary(project.getId(), project.getTitle(), project.getDescription(), project.getImageUrl(), project.getGithubUrl(), project.getLiveUrl(), project.isFeatured(), project.getDisplayOrder(), skills, technologies);
+        String imageUrl = mediaService.resolveMediaUrl(project.getImagePublicId(), project.getImageUrl());
+        return new ProjectSummary(project.getId(), project.getTitle(), project.getDescription(), imageUrl, project.getGithubUrl(), project.getLiveUrl(), project.isFeatured(), project.getDisplayOrder(), skills, technologies);
     }
 
+    public record ProfileSummary(Long id, String name, String headline, String bio, String email, String location, String githubUrl, String linkedinUrl, String resumeUrl, String imageUrl, Boolean openToWork) {}
     public record SkillSummary(Long id, String name, String category, String icon) {}
     public record ProjectSummary(Long id, String title, String description, String imageUrl, String githubUrl, String liveUrl, boolean featured, int displayOrder, List<SkillSummary> skills, List<Map<String,Object>> technologies) {}
     public record ContactRequest(@NotBlank(message = "Name is required") String name, @NotBlank(message = "Email is required") @Email(message = "Invalid email address") String email, String subject, @NotBlank(message = "Message is required") String message) {}

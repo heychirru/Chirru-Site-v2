@@ -28,6 +28,9 @@ public class Project {
     @Column(name = "image_url", length = 1000)
     private String imageUrl;
 
+    @Column(name = "image_public_id", length = 500)
+    private String imagePublicId;
+
     @Column(name = "github_url", length = 500)
     private String githubUrl;
 
