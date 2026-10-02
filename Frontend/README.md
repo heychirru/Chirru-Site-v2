@@ -14,7 +14,7 @@ Next.js + TypeScript
       │
       │ HTTPS REST API
       ▼
-api.chirru.in/api/v2
+localhost:8080
       │
       ▼
 Java + Spring Boot backend
@@ -81,13 +81,13 @@ src/
 Browser/client requests use:
 
 ```env
-NEXT_PUBLIC_API_URL=https://api.chirru.in/api/v2
+NEXT_PUBLIC_API_URL=http://localhost:8080
 ```
 
 Optional server-side override:
 
 ```env
-API_URL=https://api.chirru.in/api/v2
+API_URL=http://localhost:8080
 ```
 
 Create a local `.env.local` from `.env.example` when needed.
@@ -113,7 +113,7 @@ Portfolio images continue to use the backend image proxy:
 ```
 Browser
   ↓
-api.chirru.in/api/v2/images?id=<encoded-image-url>
+http://localhost:8080/images?id=<encoded-image-url>
   ↓
 Image storage/provider
 ```
@@ -195,21 +195,7 @@ npm run build
 
 The workflow also regenerates `package-lock.json` when the dependency graph changes.
 
-## Deployment
 
-Recommended frontend:
-
-```
-https://www.chirru.in
-```
-
-Backend:
-
-```
-https://api.chirru.in
-```
-
-The two services remain independently deployable.
 
 ## Important
 
@@ -220,7 +206,7 @@ This repository contains only the frontend migration. **Do not change the Java/S
 **Chiranjit Das**
 
 - Portfolio: https://www.chirru.in/
-- GitHub: https://github.com/chirru26
+- GitHub: https://github.com/heychirru
 
 ## License
 

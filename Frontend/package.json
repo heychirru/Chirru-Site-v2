@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:cf": "npm run build && npx opennextjs-cloudflare build",
+    "build:cf": "npm run build && npx @opennextjs/cloudflare build",
     "deploy": "npm run build:cf && wrangler deploy",
     "start": "next start",
     "lint": "oxlint",
@@ -25,7 +25,7 @@
     "@types/node": "^24.0.0",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
-    "opennextjs-cloudflare": "^1.0.0",
+    "@opennextjs/cloudflare": "1.0.0",
     "oxlint": "^1.32.0",
     "typescript": "^5.9.2",
     "wrangler": "^4.146.0"
