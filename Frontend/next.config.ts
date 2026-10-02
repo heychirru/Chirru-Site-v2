@@ -1,3 +1,4 @@
+// Next.js configuration for Cloudflare Workers via OpenNext
 import type { NextConfig } from 'next'
 
 function imagePatternFromApiUrl(raw?: string) {
