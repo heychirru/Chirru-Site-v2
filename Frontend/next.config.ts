@@ -95,7 +95,6 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: ['172.23.0.1'],
 
   images: {
-    dangerouslyAllowLocalIP: true,
     remotePatterns,
   },
 

@@ -1,4 +1,4 @@
-name: Deploy Frontend → Cloudflare Pages
+name: Deploy Frontend → Cloudflare Workers
 
 on:
   push:
@@ -43,16 +43,22 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Build for Cloudflare Pages (next-on-pages)
-        run: npx @cloudflare/next-on-pages
+      - name: Build Next.js
+        run: npm run build
         env:
           NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
           API_URL: ${{ secrets.API_URL }}
 
-      - name: Deploy to Cloudflare Pages
+      - name: Build for Cloudflare (OpenNext)
+        run: npx opennextjs-cloudflare build
+        env:
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+          API_URL: ${{ secrets.API_URL }}
+
+      - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy .vercel/output/static --project-name=frontend
+          command: deploy
           workingDirectory: frontend
