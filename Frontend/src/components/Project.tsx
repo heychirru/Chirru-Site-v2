@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowUpRight, FolderGit2, Github } from 'lucide-react'
 import Link from 'next/link'
@@ -14,13 +14,61 @@ interface ProjectProps { projects?: ProjectType[]; loading?: boolean }
 
 function ProjectCardMedia({ project }: { project: ProjectType }) {
   const [imgError, setImgError] = useState(false)
+  const [inView, setInView] = useState(false)
+  const [loaded, setLoaded] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
   const imageUrl = getImageUrl(project.imageUrl)
   const hasValidImage = Boolean(imageUrl && !imgError)
-  return <div className="project-media-wrapper">
-    {hasValidImage ? <Image src={imageUrl!} alt={`Thumbnail preview of ${project.title} project`} className="project-thumbnail" width={640} height={360} sizes="(max-width: 700px) calc(100vw - 64px), 560px" loading="lazy" onError={() => setImgError(true)} /> :
-      <div className="project-fallback-container"><div className="project-fallback-icon-wrap"><FolderGit2 size={28} /></div><span className="project-fallback-title">{project.title}</span></div>}
-    {project.featured && <span className="project-featured-badge">Featured</span>}
-  </div>
+
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+
+    if (typeof IntersectionObserver === 'undefined') {
+      const timer = setTimeout(() => setInView(true), 0)
+      return () => clearTimeout(timer)
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true)
+          observer.disconnect()
+        }
+      },
+      { rootMargin: '200px' }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <div ref={containerRef} className="project-media-wrapper">
+      {hasValidImage ? (
+        inView ? (
+          <Image
+            src={imageUrl!}
+            alt={`Thumbnail preview of ${project.title} project`}
+            className={`project-thumbnail ${loaded ? 'loaded' : ''}`}
+            width={640}
+            height={360}
+            sizes="(max-width: 700px) calc(100vw - 64px), 560px"
+            loading="lazy"
+            onLoad={() => setLoaded(true)}
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          <div className="project-thumbnail-placeholder" />
+        )
+      ) : (
+        <div className="project-fallback-container">
+          <div className="project-fallback-icon-wrap"><FolderGit2 size={28} /></div>
+          <span className="project-fallback-title">{project.title}</span>
+        </div>
+      )}
+      {project.featured && <span className="project-featured-badge">Featured</span>}
+    </div>
+  )
 }
 
 export default function Project({ projects = [], loading = false }: ProjectProps) {

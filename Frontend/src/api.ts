@@ -1,6 +1,11 @@
 import type { ContactFormData, ContactResponse } from '@/types/api'
 
 const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? '').replace(/\/$/, '')
+const DOCS_API_URL = (
+  process.env['DOCS_API_URL'] ||
+  process.env.NEXT_PUBLIC_DOCS_API_URL ||
+  API_URL
+).replace(/\/$/, '')
 
 interface RequestOptions extends RequestInit {
   body?: BodyInit | null
@@ -79,7 +84,7 @@ export const portfolioApi = {
     request(`/portfolio/project/${encodeURIComponent(String(projectId))}/tags`),
   search: (q: string) =>
     request(`/portfolio/search?q=${encodeURIComponent(q)}`),
-  resumeDownloadUrl: `${API_URL}/portfolio/resume`,
+  resumeDownloadUrl: `${DOCS_API_URL}/portfolio/resume`,
   trackEvent: async (eventType: string, extra: Omit<AnalyticsEvent, 'eventType'> = {}) => {
     try {
       await fetch(`${API_URL}/portfolio/analytics/event`, {

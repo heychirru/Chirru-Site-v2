@@ -90,8 +90,11 @@ const nextConfig: NextConfig = {
 
   poweredByHeader: false,
 
-
   allowedDevOrigins: ['172.23.0.1'],
+
+  env: {
+    'DOCS_API_URL': process.env['DOCS_API_URL'] ?? '',
+  },
 
   images: {
     unoptimized: true,
