@@ -2,9 +2,9 @@ import type { ContactFormData, ContactResponse } from '@/types/api'
 
 const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? '').replace(/\/$/, '')
 const DOCS_API_URL = (
-  process.env['DOCS_API_URL'] ||
   process.env.NEXT_PUBLIC_DOCS_API_URL ||
-  API_URL
+  process.env.DOCS_API_URL ||
+  (process.env.NODE_ENV === 'development' ? API_URL : 'https://docs.chirru.in/api/v2')
 ).replace(/\/$/, '')
 
 interface RequestOptions extends RequestInit {

@@ -48,12 +48,16 @@ jobs:
         env:
           NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
           API_URL: ${{ secrets.API_URL }}
+          NEXT_PUBLIC_DOCS_API_URL: ${{ secrets.NEXT_PUBLIC_DOCS_API_URL || 'https://docs.chirru.in/api/v2' }}
+          DOCS_API_URL: ${{ secrets.DOCS_API_URL || 'https://docs.chirru.in/api/v2' }}
 
       - name: Build for Cloudflare (OpenNext)
         run: npx opennextjs-cloudflare build
         env:
           NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
           API_URL: ${{ secrets.API_URL }}
+          NEXT_PUBLIC_DOCS_API_URL: ${{ secrets.NEXT_PUBLIC_DOCS_API_URL || 'https://docs.chirru.in/api/v2' }}
+          DOCS_API_URL: ${{ secrets.DOCS_API_URL || 'https://docs.chirru.in/api/v2' }}
 
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3

@@ -24,8 +24,15 @@ const PROD_MEDIA_HOST = {
   pathname: '/api/v2/media/**',
 }
 
+const PROD_DOCS_MEDIA_HOST = {
+  protocol: 'https' as const,
+  hostname: 'docs.chirru.in',
+  pathname: '/api/v2/media/**',
+}
+
 const remotePatterns = [
   PROD_MEDIA_HOST,
+  PROD_DOCS_MEDIA_HOST,
   imagePatternFromApiUrl(process.env.NEXT_PUBLIC_API_URL),
   imagePatternFromApiUrl(process.env.API_URL),
 ].filter((pattern, index, all): pattern is NonNullable<typeof pattern> => {
@@ -50,11 +57,11 @@ const productionSecurityHeaders = [
       "script-src 'self' 'unsafe-inline'",
       "style-src 'self' 'unsafe-inline'",
 
-      "img-src 'self' data: blob: https://api.chirru.in",
+      "img-src 'self' data: blob: https://api.chirru.in https://docs.chirru.in",
 
       "font-src 'self' data:",
-      "connect-src 'self' https://api.chirru.in",
-      "media-src 'self' https://api.chirru.in",
+      "connect-src 'self' https://api.chirru.in https://docs.chirru.in",
+      "media-src 'self' https://api.chirru.in https://docs.chirru.in",
       "worker-src 'self' blob:",
       "manifest-src 'self'",
       "upgrade-insecure-requests",
@@ -93,7 +100,10 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: ['172.23.0.1'],
 
   env: {
-    'DOCS_API_URL': process.env['DOCS_API_URL'] ?? '',
+    NEXT_PUBLIC_DOCS_API_URL:
+      process.env.NEXT_PUBLIC_DOCS_API_URL ||
+      process.env.DOCS_API_URL ||
+      'https://docs.chirru.in/api/v2',
   },
 
   images: {
