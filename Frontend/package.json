@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "postbuild": "node -e \"try { fs.rmSync('node_modules/sharp', { recursive: true, force: true }); fs.rmSync('node_modules/@img', { recursive: true, force: true }); } catch (e) {}\"",
     "build:cf": "npm run build && npx @opennextjs/cloudflare build",
     "deploy": "npm run build:cf && wrangler deploy",
     "start": "next start",

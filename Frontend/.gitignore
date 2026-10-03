@@ -14,7 +14,9 @@ out/
 dist/
 *.tsbuildinfo
 *.local
-.next
+.next/
+.open-next/
+.wrangler/
 
 # Logs
 logs/

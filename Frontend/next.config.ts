@@ -91,18 +91,10 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
 
 
-  serverExternalPackages: ['sharp'],
-
-  outputFileTracingExcludes: {
-    '*': [
-      'node_modules/sharp/**/*',
-      'node_modules/@img/**/*',
-    ],
-  },
-
   allowedDevOrigins: ['172.23.0.1'],
 
   images: {
+    unoptimized: true,
     remotePatterns,
   },
 
