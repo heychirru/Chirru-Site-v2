@@ -1,4 +1,3 @@
-// Next.js configuration for Cloudflare Workers via OpenNext
 import type { NextConfig } from 'next'
 
 function imagePatternFromApiUrl(raw?: string) {
@@ -51,8 +50,6 @@ const productionSecurityHeaders = [
       "script-src 'self' 'unsafe-inline'",
       "style-src 'self' 'unsafe-inline'",
 
-      // Images are served through our backend media proxy.
-      // Direct Cloudinary access is intentionally NOT allowed.
       "img-src 'self' data: blob: https://api.chirru.in",
 
       "font-src 'self' data:",
@@ -92,6 +89,9 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
 
   poweredByHeader: false,
+
+
+  serverExternalPackages: ['sharp'],
 
   allowedDevOrigins: ['172.23.0.1'],
 
