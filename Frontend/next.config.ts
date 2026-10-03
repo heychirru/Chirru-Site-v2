@@ -93,6 +93,13 @@ const nextConfig: NextConfig = {
 
   serverExternalPackages: ['sharp'],
 
+  outputFileTracingExcludes: {
+    '*': [
+      'node_modules/sharp/**/*',
+      'node_modules/@img/**/*',
+    ],
+  },
+
   allowedDevOrigins: ['172.23.0.1'],
 
   images: {
