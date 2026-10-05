@@ -6,7 +6,6 @@ const DOCS_API_URL = (
   process.env.DOCS_API_URL ||
   (process.env.NODE_ENV === 'development' ? API_URL : 'https://docs.chirru.in/api/v2')
 ).replace(/\/$/, '')
-
 interface RequestOptions extends RequestInit {
   body?: BodyInit | null
 }
