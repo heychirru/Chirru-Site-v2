@@ -18,21 +18,23 @@ async function get<T>(path: string, fallback: T): Promise<T> {
 
   try {
     const response = await fetch(url, {
-      cache: 'no-store',
+      next: { revalidate: 1800 },
       headers: { Accept: 'application/json' },
       signal: AbortSignal.timeout(8000),
     })
 
     if (!response.ok) {
-      console.error(
-        `[serverApi] ${response.status} ${response.statusText}: ${url}`
-      )
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(`[serverApi] ${response.status} ${response.statusText}: ${url}`)
+      }
       return fallback
     }
 
     return (await response.json()) as T
   } catch (error) {
-    console.error(`[serverApi] Failed to fetch ${url}`, error)
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn(`[serverApi] Failed to fetch ${url}`, error)
+    }
     return fallback
   }
 }

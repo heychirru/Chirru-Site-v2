@@ -46,12 +46,7 @@ export default function Hero({ profile = {}, socialLinks = [], projectCount = 0,
   return (
     <section id="home" className="hero-section section">
       <div className="container hero-container-landscape">
-        <motion.div
-          className="hero-card hero-card-landscape"
-          initial={{ opacity: 0, y: 24, scale: 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
-        >
+        <div className="hero-card hero-card-landscape">
           {/* Left Column: Identity, Bio & Actions */}
           <div className="hero-landscape-left">
             {/* Status Indicator */}
@@ -74,6 +69,7 @@ export default function Hero({ profile = {}, socialLinks = [], projectCount = 0,
                     height={160}
                     sizes="160px"
                     priority
+                    fetchPriority="high"
                     onError={() => setImgError(true)}
                   />
                 ) : (
@@ -194,7 +190,7 @@ export default function Hero({ profile = {}, socialLinks = [], projectCount = 0,
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   )

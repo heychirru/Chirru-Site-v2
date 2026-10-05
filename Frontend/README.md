@@ -2,7 +2,7 @@
 
 Personal portfolio frontend for **Chiranjit Das**.
 
-This branch is a full migration from the previous React + Vite JavaScript frontend to **Next.js App Router + TypeScript**. The Java/Spring Boot backend is an independent service and is **not modified by this migration**.
+This branch is a full migration from the previous React + Vite JavaScript frontend to **Next.js App Router + TypeScript**.
 
 ## Architecture
 
@@ -15,9 +15,6 @@ Next.js + TypeScript
       │ HTTPS REST API
       ▼
 localhost:8080
-      │
-      ▼
-Java + Spring Boot backend
 ```
 
 The admin application remains a separate application/domain.
@@ -32,7 +29,6 @@ The admin application remains a separate application/domain.
 - Lucide React
 - Zod
 - Oxlint
-- Java/Spring Boot REST API (external, unchanged)
 
 ## Routes
 
@@ -81,13 +77,13 @@ src/
 Browser/client requests use:
 
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:8080
+NEXT_PUBLIC_API_URL=backend url
 ```
 
 Optional server-side override:
 
 ```env
-API_URL=http://localhost:8080
+API_URL=backend url
 ```
 
 Create a local `.env.local` from `.env.example` when needed.
@@ -104,21 +100,6 @@ Create a local `.env.local` from `.env.example` when needed.
 - `GET /portfolio/resume`
 - `POST /portfolio/analytics/event`
 
-**The backend implementation and database are outside this repository and are not changed by the Next.js migration.**
-
-## Image delivery
-
-Portfolio images continue to use the backend image proxy:
-
-```
-Browser
-  ↓
-http://localhost:8080/images?id=<encoded-image-url>
-  ↓
-Image storage/provider
-```
-
-The frontend does not need to expose the storage provider URL directly.
 
 ## Development
 
@@ -199,7 +180,7 @@ The workflow also regenerates `package-lock.json` when the dependency graph chan
 
 ## Important
 
-This repository contains only the frontend migration. **Do not change the Java/Spring Boot backend as part of this work.**
+This repository contains only the frontend migration. 
 
 ## Author
 

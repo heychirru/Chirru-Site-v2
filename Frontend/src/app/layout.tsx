@@ -1,6 +1,8 @@
 import '@/app/globals.css'
 import SiteChrome from '@/components/SiteChrome'
 import { serverApi } from '@/lib/serverApi'
+import { getImageUrl } from '@/utils/imageUtils'
+import { preload } from 'react-dom'
 import type { Metadata, Viewport } from 'next'
 import { Inter, JetBrains_Mono } from 'next/font/google'
 
@@ -31,15 +33,15 @@ export const metadata: Metadata = {
         locale: 'en_IN',
         url: 'https://www.chirru.in/',
         siteName: 'Chiranjit Das Portfolio',
-        title: 'Chiranjit Das',
-        description: 'Official portfolio and software engineering projects of Chiranjit Das.',
-        images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'Chiranjit Das portfolio' }]
+        title: 'Chiranjit Das | Java & Backend Developer',
+        description: 'Explore software architecture, featured projects, and backend engineering competencies by Chiranjit Das.',
+        images: [{ url: 'https://www.chirru.in/og-image.jpg', width: 1200, height: 630, type: 'image/jpeg', alt: 'Chiranjit Das portfolio' }]
     },
     twitter: {
         card: 'summary_large_image',
-        title: 'Chiranjit Das',
-        description: 'Official portfolio and software engineering projects of Chiranjit Das.',
-        images: ['/og-image.jpg']
+        title: 'Chiranjit Das | Java & Backend Developer',
+        description: 'Explore software architecture, featured projects, and backend engineering competencies by Chiranjit Das.',
+        images: ['https://www.chirru.in/og-image.jpg']
     },
     robots: {
         index: true,
@@ -64,6 +66,10 @@ const themeInitScript = `(function(){try{var t=localStorage.getItem('chirru_them
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
     const [profile, socialLinks] = await Promise.all([serverApi.profile(), serverApi.socialLinks()]);
+    const avatarUrl = getImageUrl(profile.imageUrl);
+    if (avatarUrl) {
+        preload(avatarUrl, { as: 'image', fetchPriority: 'high' });
+    }
     return (
         <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
             <head>

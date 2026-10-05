@@ -3,6 +3,8 @@ import ProjectDetailsPage from '@/views/ProjectDetailsPage'
 import { serverApi } from '@/lib/serverApi'
 import { findProjectBySlug, toProjectSlug } from '@/utils/slugUtils'
 
+export const revalidate = 1800
+
 interface PageProps {
     params: Promise<{ slug: string }>
 }
