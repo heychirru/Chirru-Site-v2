@@ -9,6 +9,10 @@ export interface SocialLink {
   platform?: string | null
   label?: string | null
   url: string
+  icon?: string | null
+  display_order?: number | null
+  order?: number | null
+  visible?: boolean
 }
 
 export interface Profile {

@@ -13,12 +13,14 @@ const API_URL = (
   'http://127.0.0.1:8080/api/v2'
 ).replace(/\/$/, '')
 
+const isDev = process.env.NODE_ENV === 'development'
+
 async function get<T>(path: string, fallback: T): Promise<T> {
   const url = `${API_URL}${path}`
 
   try {
     const response = await fetch(url, {
-      next: { revalidate: 1800 },
+      ...(isDev ? { cache: 'no-store' } : { next: { revalidate: 1800 } }),
       headers: { Accept: 'application/json' },
       signal: AbortSignal.timeout(8000),
     })

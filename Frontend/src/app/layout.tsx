@@ -53,6 +53,11 @@ export const metadata: Metadata = {
             'max-snippet': -1,
             'max-video-preview': -1
         }
+    },
+    verification: {
+        other: {
+            'msvalidate.01': '3B9F498CDE61339BF4378E1368ABC695',
+        },
     }
 }
 

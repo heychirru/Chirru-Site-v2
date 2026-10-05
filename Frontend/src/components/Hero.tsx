@@ -1,12 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { ArrowUpRight, Code2, FileText, Github, Globe, Linkedin, Instagram, Mail, MapPin, Send, User } from 'lucide-react'
+import { ArrowUpRight, Code2, FileText, Mail, MapPin, Send, User } from 'lucide-react'
 import { portfolioApi } from '@/api'
 import { getImageUrl } from '@/utils/imageUtils'
-import { getSafeExternalUrl, getSafeMailto } from '@/utils/externalUrl'
+import { getSafeMailto } from '@/utils/externalUrl'
+import { getOrderedSocialLinks } from '@/utils/socialUtils'
+import { SocialIcon } from '@/components/SocialIcon'
 import type { Profile, SocialLink } from '@/types/portfolio'
 
 interface HeroProps {
@@ -21,20 +23,8 @@ export default function Hero({ profile = {}, socialLinks = [], projectCount = 0,
     void portfolioApi.trackEvent('resume_download', { source: 'hero_cta' })
   }
 
-  const github = socialLinks.find((s) => s.platform?.toLowerCase() === 'github')?.url || profile.githubUrl
-  const linkedin = socialLinks.find((s) => s.platform?.toLowerCase() === 'linkedin')?.url || profile.linkedinUrl
-  const instagram = socialLinks.find((s) => s.platform?.toLowerCase() === 'instagram')?.url || profile.instagramUrl
-  const xLink = socialLinks.find((s) => {
-    const p = s.platform?.toLowerCase()
-    const u = s.url?.toLowerCase() || ''
-    return p === 'twitter' || p === 'x' || u.includes('x.com') || u.includes('twitter.com')
-  })?.url || profile.twitterUrl || profile.xUrl
-  const email = profile.email
-  const safeGithub = getSafeExternalUrl(github)
-  const safeLinkedin = getSafeExternalUrl(linkedin)
-  const safeInstagram = getSafeExternalUrl(instagram)
-  const safeXLink = getSafeExternalUrl(xLink)
-  const safeEmail = getSafeMailto(email)
+  const orderedSocials = useMemo(() => getOrderedSocialLinks(socialLinks, profile), [socialLinks, profile])
+  const safeEmail = getSafeMailto(profile.email)
 
   const [imgError, setImgError] = useState(false)
   const avatarUrl = getImageUrl(profile.imageUrl)
@@ -109,52 +99,24 @@ export default function Hero({ profile = {}, socialLinks = [], projectCount = 0,
               </div>
 
               <div className="hero-socials hero-landscape-socials">
-                {safeGithub && (
-                  <a href={safeGithub!} target="_blank" rel="noreferrer" className="social-icon-btn" aria-label="GitHub">
-                    <Github size={18} />
+                {orderedSocials.map((link) => (
+                  <a
+                    key={link.id || `${link.platform}-${link.url}`}
+                    href={link.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="social-icon-btn"
+                    aria-label={link.label}
+                    title={link.label}
+                  >
+                    <SocialIcon link={link} size={18} />
                   </a>
-                )}
-                {safeLinkedin && (
-                  <a href={safeLinkedin!} target="_blank" rel="noreferrer" className="social-icon-btn" aria-label="LinkedIn">
-                    <Linkedin size={18} />
-                  </a>
-                )}
-                {safeXLink && (
-                  <a href={safeXLink!} target="_blank" rel="noreferrer" className="social-icon-btn" aria-label="X (Twitter)">
-                    <svg viewBox="0 0 24 24" width={16} height={16} fill="currentColor">
-                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                    </svg>
-                  </a>
-                )}
-                {safeInstagram && (
-                  <a href={safeInstagram!} target="_blank" rel="noreferrer" className="social-icon-btn" aria-label="Instagram">
-                    <Instagram size={18} />
-                  </a>
-                )}
+                ))}
                 {safeEmail && (
-                  <a href={safeEmail!} className="social-icon-btn" aria-label="Email">
+                  <a href={safeEmail} className="social-icon-btn" aria-label="Email" title="Email">
                     <Mail size={18} />
                   </a>
                 )}
-                {socialLinks
-                  .filter((s) => {
-                    const p = s.platform?.toLowerCase() || ''
-                    const u = s.url?.toLowerCase() || ''
-                    return !['github', 'linkedin', 'instagram', 'twitter', 'x'].includes(p) && !u.includes('x.com') && !u.includes('twitter.com')
-                  })
-                  .map((s) => (
-                    <a
-                      key={s.id || s.url}
-                      href={getSafeExternalUrl(s.url) || undefined}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="social-icon-btn"
-                      aria-label={s.label || s.platform || 'Social link'}
-                      title={s.label || s.platform || undefined}
-                    >
-                      <Globe size={18} />
-                    </a>
-                  ))}
               </div>
             </div>
           </div>
