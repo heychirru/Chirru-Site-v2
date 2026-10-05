@@ -41,7 +41,7 @@ export default function Footer({ profile = {}, socialLinks = [] }: FooterProps) 
               <Github size={16} />
             </a>
           )}
-          {linkedin && (
+          {/* {linkedin && (
             <a href={linkedin} target="_blank" rel="noreferrer" className="social-icon-btn" aria-label="LinkedIn" style={{ width: 36, height: 36 }}>
               <Linkedin size={16} />
             </a>
@@ -57,7 +57,7 @@ export default function Footer({ profile = {}, socialLinks = [] }: FooterProps) 
             <a href={instagram} target="_blank" rel="noreferrer" className="social-icon-btn" aria-label="Instagram" style={{ width: 36, height: 36 }}>
               <Instagram size={16} />
             </a>
-          )}
+          )} */}
           {profile.email && (
             <a href={`mailto:${profile.email}`} className="social-icon-btn" aria-label="Email" style={{ width: 36, height: 36 }}>
               <Mail size={16} />
