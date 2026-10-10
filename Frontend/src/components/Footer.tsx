@@ -64,7 +64,7 @@ export default function Footer({ profile = {}, socialLinks = [] }: FooterProps) 
             </a>
           )}
 
-          <button className="back-to-top-btn" onClick={scrollToTop} aria-label="Scroll to top of page">
+          <button className="back-to-top-btn" onClick={scrollToTop} aria-label="Back to top">
             <ArrowUp size={14} /> Back to top
           </button>
         </div>

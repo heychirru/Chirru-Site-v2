@@ -27,7 +27,9 @@ export default function Profile() {
     githubUrl: '',
     linkedinUrl: '',
     resumeUrl: '',
+    resumePublicId: '',
     imageUrl: '',
+    imagePublicId: '',
     bio: '',
     openToWork: true,
   })
@@ -302,7 +304,14 @@ export default function Profile() {
                     folder="resume"
                     resourceType="raw"
                     value={form.resumeUrl || ''}
-                    onChange={(url) => handleChange('resumeUrl', url)}
+                    onChange={(url, data) => {
+                      setForm((prev) => ({
+                        ...prev,
+                        resumeUrl: url || '',
+                        resumePublicId: data?.publicId || (url ? prev.resumePublicId : ''),
+                      }))
+                      if (status.message) setStatus({ type: '', message: '' })
+                    }}
                     helperText="Upload PDF resume (Max 10 MB)"
                   />
                 </div>
@@ -314,7 +323,14 @@ export default function Profile() {
                     folder="profile"
                     resourceType="image"
                     value={form.imageUrl || ''}
-                    onChange={(url) => handleChange('imageUrl', url)}
+                    onChange={(url, data) => {
+                      setForm((prev) => ({
+                        ...prev,
+                        imageUrl: url || '',
+                        imagePublicId: data?.publicId || (url ? prev.imagePublicId : ''),
+                      }))
+                      if (status.message) setStatus({ type: '', message: '' })
+                    }}
                     helperText="Upload JPEG, PNG, or WebP profile image (Max 5 MB)"
                   />
                 </div>

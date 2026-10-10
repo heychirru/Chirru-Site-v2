@@ -16,23 +16,23 @@ export function getImageUrl(value: unknown): string | null {
     return trimmed
   }
 
-  // Raw numeric media ID: "2"
-  if (/^\d+$/.test(trimmed)) {
+  // Raw media ID or filename:
+  if (/^[\w.-]+$/.test(trimmed) && !trimmed.includes('/')) {
     return `${API_ORIGIN}/api/v2/media/${trimmed}`
   }
 
-  // Current backend media proxy: /api/v2/media/{id}
-  if (/^\/api\/v2\/media\/\d+$/.test(trimmed)) {
+  // Current backend media proxy: /api/v2/media/{id} or /api/v2/media/{filename}
+  if (/^\/api\/v2\/media\/[\w.-]+$/.test(trimmed)) {
     return `${API_ORIGIN}${trimmed}`
   }
 
-  // API-relative media proxy: /media/{id}
-  if (/^\/media\/\d+$/.test(trimmed)) {
+  // API-relative media proxy: /media/{id} or /media/{filename}
+  if (/^\/media\/[\w.-]+$/.test(trimmed)) {
     return `${API_BASE_URL}${trimmed}`
   }
 
   // Fully-qualified current media proxy URL
-  if (/\/api\/v2\/media\/\d+$/.test(trimmed)) {
+  if (/\/api\/v2\/media\/[\w.-]+$/.test(trimmed)) {
     return trimmed
   }
 

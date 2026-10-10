@@ -43,6 +43,13 @@ export const metadata: Metadata = {
         description: 'Explore software architecture, featured projects, and backend engineering competencies by Chiranjit Das.',
         images: ['https://www.chirru.in/og-image.jpg']
     },
+    icons: {
+        icon: [
+            { url: '/favicon.svg', type: 'image/svg+xml' },
+            { url: '/favicon.ico', sizes: 'any' }
+        ],
+        apple: '/favicon.svg'
+    },
     robots: {
         index: true,
         follow: true,

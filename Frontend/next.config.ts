@@ -20,7 +20,7 @@ function imagePatternFromApiUrl(raw?: string) {
 
 const PROD_MEDIA_HOST = {
   protocol: 'https' as const,
-  hostname: 'api.chirru.in',
+  hostname: 'app.chirru.in',
   pathname: '/api/v2/media/**',
 }
 
@@ -57,11 +57,11 @@ const productionSecurityHeaders = [
       "script-src 'self' 'unsafe-inline'",
       "style-src 'self' 'unsafe-inline'",
 
-      "img-src 'self' data: blob: https://api.chirru.in https://docs.chirru.in",
+      "img-src 'self' data: blob: https://app.chirru.in https://docs.chirru.in",
 
       "font-src 'self' data:",
-      "connect-src 'self' https://api.chirru.in https://docs.chirru.in",
-      "media-src 'self' https://api.chirru.in https://docs.chirru.in",
+      "connect-src 'self' https://app.chirru.in https://docs.chirru.in",
+      "media-src 'self' https://app.chirru.in https://docs.chirru.in",
       "worker-src 'self' blob:",
       "manifest-src 'self'",
       "upgrade-insecure-requests",

@@ -10,12 +10,6 @@ const MEDIA_PATH_PREFIX = new URL(`${API_BASE_URL}/media/`).pathname
 
 /**
  * Converts a backend media reference into a browser-safe URL.
- *
- * Supported:
- *   "42"
- *   "/api/v2/media/42"
- *   "https://api.chirru.in/api/v2/media/42"
- *
  * Direct Cloudinary URLs are intentionally rejected.
  */
 export function getImageUrl(mediaUrl?: string | null): string | null {
@@ -33,21 +27,21 @@ export function getImageUrl(mediaUrl?: string | null): string | null {
     return null
   }
 
-  // Backend media ID: "42"
-  if (/^\d+$/.test(trimmed)) {
+  // Backend media ID or filename
+  if (/^[\w.-]+$/.test(trimmed) && !trimmed.includes('/')) {
     return `${API_ORIGIN}${MEDIA_PATH_PREFIX}${trimmed}`
   }
 
   try {
     const resolved = new URL(trimmed, `${API_BASE_URL}/`)
+    const assetPath = resolved.pathname.slice(MEDIA_PATH_PREFIX.length)
 
     // Only allow our own backend media endpoint.
     if (
       resolved.origin === API_ORIGIN &&
       resolved.pathname.startsWith(MEDIA_PATH_PREFIX) &&
-      /^\d+$/.test(
-        resolved.pathname.slice(MEDIA_PATH_PREFIX.length)
-      ) &&
+      /^[\w.-]+$/.test(assetPath) &&
+      !assetPath.includes('..') &&
       !resolved.username &&
       !resolved.password &&
       !resolved.search &&
@@ -56,7 +50,6 @@ export function getImageUrl(mediaUrl?: string | null): string | null {
       return resolved.toString()
     }
 
-    // Reject everything else, including Cloudinary.
     return null
   } catch {
     return null
