@@ -4,9 +4,8 @@
   "version": "2.2.0",
   "scripts": {
     "dev": "next dev -p 3001",
-    "build": "node scripts/build-production.mjs",
-    "build:production": "npm run build",
-    "deploy": "npm run build:production && wrangler deploy",
+    "build": "next build",
+    "deploy": "npm run build && wrangler deploy",
     "start": "next start -p 3001",
     "lint": "oxlint",
     "typecheck": "tsc --noEmit"
