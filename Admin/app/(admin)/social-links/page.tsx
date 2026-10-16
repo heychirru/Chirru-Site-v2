@@ -1,4 +1,7 @@
 'use client'
 
-import SocialLinks from '../../../src/components/SocialLinks'
-export default function Page() { return <SocialLinks /> }
+import SocialLinks from '@/features/social-links/SocialLinks'
+
+export default function Page() {
+  return <SocialLinks />
+}

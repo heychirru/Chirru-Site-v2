@@ -1,4 +1,7 @@
 'use client'
 
-import Education from '../../../src/components/Education'
-export default function Page() { return <Education /> }
+import Education from '@/features/education/Education'
+
+export default function Page() {
+  return <Education />
+}

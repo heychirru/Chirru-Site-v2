@@ -5,6 +5,9 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  devIndicators: {
+    position: 'bottom-right',
+  },
 }
 
 export default nextConfig

@@ -1,4 +1,7 @@
 'use client'
 
-import AuditLogs from '../../../src/components/AuditLogs'
-export default function Page() { return <AuditLogs /> }
+import AuditLogs from '@/features/audit-logs/AuditLogs'
+
+export default function Page() {
+  return <AuditLogs />
+}

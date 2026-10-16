@@ -1,6 +1,6 @@
 {
   "name": "frontend",
-  "compatibility_date": "2026-10-02",
+  "compatibility_date": "2026-10-16",
   "compatibility_flags": ["nodejs_compat"],
   "main": ".open-next/worker.js",
   "assets": {

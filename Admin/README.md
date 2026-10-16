@@ -1,16 +1,24 @@
-# React + Vite
+# Chirru Admin
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+The administrative CMS for the Chirru portfolio. It is a Next.js static export deployed as Cloudflare Worker assets.
 
-Currently, two official plugins are available:
+## Local development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+1. Install the locked dependencies with `npm ci`.
+2. Copy `.env.example` to `.env.local` and set the local API and portfolio URLs.
+3. Start the app with `npm run dev` (http://localhost:3001).
 
-## React Compiler
+## Production build and deploy
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+`npm run build:production` builds with public HTTPS defaults for `https://api.chirru.in/api/v2` and `https://chirru.in`. These values are supplied to Next.js as process environment variables, so local `.env.local` values cannot accidentally be embedded in the static export. To use different production hosts, set `NEXT_PUBLIC_API_URL` and `NEXT_PUBLIC_SITE_URL` in the environment before running the command. The build rejects non-HTTPS and localhost values.
 
-## Expanding the Oxlint configuration
+`npm run deploy` runs the production build and then deploys `dist/` using `wrangler.jsonc`. Wrangler must already be authenticated for the Cloudflare account. The Worker must have the production hostname or route attached in Cloudflare because `workers_dev` is disabled in this configuration.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## Checks
+
+- `npm run typecheck`
+- `npm run lint`
+- `npm audit --audit-level=high`
+- `npm run build:production`
+
+The admin is a static client application. Its API must allow the production admin origin through CORS and support the configured authentication cookie/token flow over HTTPS.

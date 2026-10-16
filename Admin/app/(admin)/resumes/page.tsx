@@ -1,4 +1,7 @@
 'use client'
 
-import Resumes from '../../../src/components/Resumes'
-export default function Page() { return <Resumes /> }
+import Resumes from '@/features/resumes/Resumes'
+
+export default function Page() {
+  return <Resumes />
+}

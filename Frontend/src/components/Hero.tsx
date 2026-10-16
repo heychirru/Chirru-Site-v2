@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from 'react'
 import Image from 'next/image'
-import { motion } from 'framer-motion'
 import { ArrowUpRight, Code2, FileText, Mail, MapPin, Send, User } from 'lucide-react'
 import { portfolioApi } from '@/api'
 import { getImageUrl } from '@/utils/imageUtils'

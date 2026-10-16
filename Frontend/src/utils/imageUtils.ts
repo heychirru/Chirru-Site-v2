@@ -8,10 +8,6 @@ const API_BASE_URL = (
 const API_ORIGIN = new URL(API_BASE_URL).origin
 const MEDIA_PATH_PREFIX = new URL(`${API_BASE_URL}/media/`).pathname
 
-/**
- * Converts a backend media reference into a browser-safe URL.
- * Direct Cloudinary URLs are intentionally rejected.
- */
 export function getImageUrl(mediaUrl?: string | null): string | null {
   if (!mediaUrl || typeof mediaUrl !== 'string') {
     return null

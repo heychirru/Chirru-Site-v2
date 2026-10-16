@@ -1,4 +1,7 @@
 'use client'
 
-import Experience from '../../../src/components/Experience'
-export default function Page() { return <Experience /> }
+import Experience from '@/features/experience/Experience'
+
+export default function Page() {
+  return <Experience />
+}

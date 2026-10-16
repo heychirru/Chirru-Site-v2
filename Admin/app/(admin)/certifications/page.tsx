@@ -1,4 +1,7 @@
 'use client'
 
-import Certifications from '../../../src/components/Certifications'
-export default function Page() { return <Certifications /> }
+import Certifications from '@/features/certifications/Certifications'
+
+export default function Page() {
+  return <Certifications />
+}

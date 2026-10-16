@@ -1,4 +1,7 @@
 'use client'
 
-import MediaManager from '../../../src/components/MediaManager'
-export default function Page() { return <MediaManager /> }
+import MediaManager from '@/features/media/MediaManager'
+
+export default function Page() {
+  return <MediaManager />
+}

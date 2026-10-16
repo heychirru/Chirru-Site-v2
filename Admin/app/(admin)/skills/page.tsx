@@ -1,4 +1,7 @@
 'use client'
 
-import Skills from '../../../src/components/Skills'
-export default function Page() { return <Skills /> }
+import Skills from '@/features/skills/Skills'
+
+export default function Page() {
+  return <Skills />
+}

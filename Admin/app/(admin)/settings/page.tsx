@@ -1,4 +1,7 @@
 'use client'
 
-import SiteSettings from '../../../src/components/SiteSettings'
-export default function Page() { return <SiteSettings /> }
+import SiteSettings from '@/features/settings/SiteSettings'
+
+export default function Page() {
+  return <SiteSettings />
+}
